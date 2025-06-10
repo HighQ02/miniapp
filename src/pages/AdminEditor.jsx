@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const API_URL = "https://192.168.0.105:8000";
+const API_URL = "https://check-bot.top";
 
 const AdminEditor = () => {
   const { id } = useParams();

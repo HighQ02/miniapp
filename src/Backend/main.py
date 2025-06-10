@@ -5,14 +5,7 @@ from aiohttp import web
 from mydb import Database
 from datetime import datetime
 import shutil
-import ssl
 import os
-
-ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-ssl_context.load_cert_chain(
-    '/Users/tamirlan/Desktop/Self Development/Kwork/firstKwork/my-app/src/Backend/cert.pem',
-    '/Users/tamirlan/Desktop/Self Development/Kwork/firstKwork/my-app/src/Backend/key.pem'
-)
 
 db = Database()
 
@@ -320,7 +313,7 @@ app.add_routes([
 
 # Настраиваем CORS ПОСЛЕ добавления маршрутов
 cors = aiohttp_cors.setup(app, defaults={
-    "https://192.168.0.105:3000": aiohttp_cors.ResourceOptions(
+    "https://check-bot.top": aiohttp_cors.ResourceOptions(
         allow_credentials=True,
         expose_headers="*",
         allow_headers="*",
@@ -337,7 +330,7 @@ app.router.add_static('/Cloud/', os.path.abspath('firstKwork/my-app/src/Backend/
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    web.run_app(app, port=8000, ssl_context=ssl_context)
+    web.run_app(app, port=8000)
 
 
 

@@ -313,7 +313,7 @@ async def send_site_link(message: types.Message):
     lang = user["language_code"] if user else "ru"
     sub_end = await db.get_subscription(user_id)
     if sub_end and sub_end > datetime.utcnow():
-        web_app_url = "https://192.168.0.105:3000"
+        web_app_url = "https://check-bot.top"
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🌐 Перейти на сайт" if lang == "ru" else "🌐 Open site", web_app=types.WebAppInfo(url=web_app_url))]
         ])

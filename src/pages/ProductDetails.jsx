@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 
-const API_URL = "https://192.168.0.105:8000";
+const API_URL = "https://check-bot.top";
 
 const ProductDetails = () => {
   const { id } = useParams();
