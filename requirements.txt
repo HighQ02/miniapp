@@ -1,4 +1,4 @@
-aiogram==3.0.0
+aiogram==3.8.5
 asyncpg==0.27.0
 python-dotenv==1.0.0
-aiohttp-cors==0.8.1
+aiohttp-cors==3.9
