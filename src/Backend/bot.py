@@ -344,7 +344,7 @@ async def process_subscription_choice(callback_query: types.CallbackQuery):
     user = await db.get_user(callback_query.from_user.id)
     lang = user["language_code"] if user else "ru"
 
-    prices = [LabeledPrice(label=f"Подписка на {days} дней" if lang == "ru" else f"Subscription for {days} days", amount=price * 100)]
+    prices = [LabeledPrice(label=f"Подписка на {days} дней" if lang == "ru" else f"Subscription for {days} days", amount=price)]
 
     await bot.send_invoice(
         chat_id=callback_query.from_user.id,
@@ -496,7 +496,10 @@ async def refund_payment(message: types.Message, state: FSMContext):
         return
 
     try:
-        await bot.refund_payment(charge_id=charge_id)
+        await bot.refund_star_payment(
+            user_id=payment['user_id'],
+            telegram_payment_charge_id=charge_id
+        )
         await message.answer(t("refund_success", lang=lang))
         await state.clear()
     except Exception as e:
@@ -593,6 +596,15 @@ async def activate_ref_subscription(callback: types.CallbackQuery):
     await callback.answer()
 
 
+@dp.message(Command("stars"))
+async def show_stars(message: types.Message):
+    user_id = message.from_user.id
+    user = await db.get_user(user_id)
+    lang = user["language_code"] if user else "ru"
+    stars = user.get("stars", 0)
+    await message.answer(f"⭐️ У вас {stars} звёзд." if lang == "ru" else f"⭐️ You have {stars} stars.")
+
+
 async def remove_expired_subscriptions():
     while True:
         now = datetime.now()
@@ -601,7 +613,7 @@ async def remove_expired_subscriptions():
                 "UPDATE users SET subscription = NULL WHERE subscription IS NOT NULL AND subscription < $1",
                 now
             )
-        await asyncio.sleep(60) # данные очищаются каждые 5 минут, можно изменить на любое другое время, например на больше чтобы уменьшить нагрузку на базу данных
+        await asyncio.sleep(5 * 60) # данные очищаются каждые 5 минут, можно изменить на любое другое время, например на больше чтобы уменьшить нагрузку на базу данных
         print(f"Expired subscriptions removed at {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
 async def main():
