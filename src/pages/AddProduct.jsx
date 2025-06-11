@@ -39,7 +39,7 @@ const AddProduct = () => {
     formData.append('has_video', hasVideo);
     formData.append('is_hot', isHot);
 
-    const res = await fetch('https://check-bot.top/admin/add-product', {
+    const res = await fetch('https://check-bot.top/api/admin/add-product', {
       method: 'POST',
       body: formData,
     });

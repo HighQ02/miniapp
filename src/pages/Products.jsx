@@ -8,7 +8,7 @@ const Products = () => {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('https://check-bot.top/products');
+        const res = await fetch('https://check-bot.top/api/products');
         const data = await res.json();
         setProducts(data || []);
       } catch (error) {
@@ -27,7 +27,7 @@ const Products = () => {
     <div className="products-grid">
       {products.map(p => (
         <Link key={p.id} to={`/products/${p.id}`} className="product-card">
-          <img src={`https://check-bot.top${p.thumbnail}`} alt={`Товар ${p.id}`} />
+          <img src={`https://check-bot.top/api${p.thumbnail}`} alt={`Товар ${p.id}`} />
           <div className="icons">
             {p.has_video && <span title="Есть видео" role="img" aria-label="video">🎥</span>}
             {p.is_hot && <span title="Горячее предложение" role="img" aria-label="hot">🔥</span>}

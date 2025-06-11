@@ -21,7 +21,7 @@ const useTelegramUser = () => {
     setUser({ id });
 
     // 1. Проверка подписки
-    const checkSubscription = fetch(`https://check-bot.top/check?user_id=${id}`)
+    const checkSubscription = fetch(`https://check-bot.top/api/check?user_id=${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.hasSubscription) {
@@ -32,7 +32,7 @@ const useTelegramUser = () => {
       });
 
     // 2. Проверка админа
-    const checkAdmin = fetch(`https://check-bot.top/check-admin?user_id=${id}`)
+    const checkAdmin = fetch(`https://check-bot.top/api/check-admin?user_id=${id}`)
       .then(res => res.json())
       .then(data => {
         setIsAdmin(data.isAdmin || false);

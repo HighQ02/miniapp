@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const API_URL = "https://check-bot.top";
+const API_URL = "https://check-bot.top/api";
 
 const AdminEditor = () => {
   const { id } = useParams();

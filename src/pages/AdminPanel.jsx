@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Admin.css";
 
-const API_URL = "https://check-bot.top";
+const API_URL = "https://check-bot.top/api";
 
 const AdminPanel = () => {
   const [products, setProducts] = useState([]);
