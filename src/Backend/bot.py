@@ -8,7 +8,6 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup, LabeledPrice, ContentType
-from aiogram.client.bot import DefaultBotProperties
 from config import BOT_TOKEN
 from mydb import Database
 from datetime import datetime, timedelta
@@ -16,7 +15,7 @@ from datetime import datetime, timedelta
 # Ставим русскую локаль для красивых дат
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
 dp = Dispatcher()
 db = Database()
 

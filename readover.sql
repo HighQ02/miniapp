@@ -32,24 +32,3 @@ CREATE TABLE products (
 ALTER TABLE products
 ALTER COLUMN images SET DATA TYPE JSONB USING images::jsonb,
 ALTER COLUMN videos SET DATA TYPE JSONB USING videos::jsonb;
-
-
-
-DROP TABLE IF EXISTS payments;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS products;
-
-
-SELECT * FROM users
-SELECT * FROM payments
-SELECT * FROM products
-
-UPDATE users
-SET subscription = NULL
-WHERE user_id = 747588218;
-
-UPDATE users
-SET used_one_time_access = false
-WHERE user_id = 6660631433;
-
-DELETE FROM users WHERE user_id=6660631433;
