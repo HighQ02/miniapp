@@ -9,7 +9,7 @@ const AdminPanel = () => {
   const [searchId, setSearchId] = useState("");
 
   useEffect(() => {
-    fetch(`${API_URL}/products`)
+    fetch(`${API_URL}/`)
       .then(res => res.json())
       .then(setProducts);
   }, []);
