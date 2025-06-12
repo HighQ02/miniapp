@@ -13,7 +13,10 @@ from mydb import Database
 from datetime import datetime, timedelta
 
 # Ставим русскую локаль для красивых дат
-locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+try:
+    locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+except locale.Error:
+    pass  # Сервер без русской локали, не критично
 
 bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
 dp = Dispatcher()
@@ -154,11 +157,10 @@ def t(key, lang="ru", **kwargs):
 
 async def get_menu_keyboard(user_id: int):
     user = await db.get_user(user_id)
-    is_admin = user and user['is_admin']
-    subscription = user and user['subscription']
+    is_admin = user and user.get('is_admin', False)
+    subscription = user and user.get('subscription')
     now = datetime.utcnow()
-
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
     buttons = [
         [KeyboardButton(text="💳 Купить подписку" if lang == "ru" else "💳 Buy subscription")],
@@ -181,16 +183,17 @@ class LanguageState(StatesGroup):
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
-    menu_kb = await get_menu_keyboard(message.from_user.id)
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
     if not user:
         await db.create_user(user_id)
         lang = "ru"
 
-    if not user or not user["is_initialized"]:
+    menu_kb = await get_menu_keyboard(user_id)
+
+    if not user or not user.get("is_initialized"):
         lang_kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru")],
             [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en")]
@@ -205,7 +208,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 @dp.message(lambda m: m.text in ["⚙️ Настройки", "⚙️ Settings"])
 async def open_settings(message: types.Message):
     user = await db.get_user(message.from_user.id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     lang_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru")],
         [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en")]
@@ -214,23 +217,22 @@ async def open_settings(message: types.Message):
 
 @dp.callback_query(lambda c: c.data.startswith("lang:"))
 async def set_language(callback: types.CallbackQuery, state: FSMContext):
-    menu_kb = await get_menu_keyboard(callback.from_user.id)
     lang_code = callback.data.split(":")[1]
     user_id = callback.from_user.id
 
     await db.set_user_language(user_id, lang_code)
     await db.set_user_initialized(user_id)
+    menu_kb = await get_menu_keyboard(user_id)
 
     await callback.message.edit_text(t("lang_saved", lang=lang_code))
     await callback.message.answer(t("start", lang=lang_code, name=callback.from_user.full_name), reply_markup=menu_kb)
     await state.clear()
 
-
 @dp.message(Command("giveadmin"))
 async def give_admin(message: types.Message):
     user = await db.get_user(message.from_user.id)
-    lang = user["language_code"] if user else "ru"
-    if message.from_user.id != 6660631433:
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    if not user or message.from_user.id != 6660631433:
         await message.answer("⛔ Только главный админ может выдавать права." if lang == "ru" else "⛔ Only the main admin can grant rights.")
         return
 
@@ -246,19 +248,18 @@ async def give_admin(message: types.Message):
     except Exception as e:
         await message.answer(f"⚠️ Ошибка: {e}" if lang == "ru" else f"⚠️ Error: {e}")
 
-
 @dp.message(Command("profile"))
 async def profile(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user_profile(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
     if not user:
         await message.answer(t("profile_not_found", lang=lang))
         return
 
-    is_admin = "✅ Да" if lang == "ru" else ("✅ Yes" if user["is_admin"] else "❌ No")
-    sub_end = user["subscription"]
+    is_admin = "✅ Да" if lang == "ru" else ("✅ Yes" if user.get("is_admin") else "❌ No")
+    sub_end = user.get("subscription")
     if sub_end and sub_end > datetime.utcnow():
         sub_status = f"✅ до {sub_end.strftime('%d %B %Y')}" if lang == "ru" else f"✅ until {sub_end.strftime('%d %B %Y')}"
     else:
@@ -269,12 +270,11 @@ async def profile(message: types.Message):
         t("profile", lang=lang, user_id=user_id, language=language, is_admin=is_admin, sub_status=sub_status)
     )
 
-
 @dp.message(Command("grantaccess"))
 async def grant_access(message: types.Message):
     user = await db.get_user(message.from_user.id)
-    lang = user["language_code"] if user else "ru"
-    if not user or not user['is_admin']:
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    if not user or not user.get('is_admin'):
         await message.answer(t("admin_only", lang=lang))
         return
 
@@ -304,12 +304,11 @@ async def grant_access(message: types.Message):
     except Exception as e:
         await message.answer(t("grant_error", lang=lang, e=e))
 
-
 @dp.message(lambda m: m.text in ["🔗 Получить доступ", "🔗 Get access"])
 async def send_site_link(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     sub_end = await db.get_subscription(user_id)
     if sub_end and sub_end > datetime.utcnow():
         web_app_url = "https://check-bot.top"
@@ -320,11 +319,10 @@ async def send_site_link(message: types.Message):
     else:
         await message.answer(t("no_sub", lang=lang))
 
-
 @dp.message(lambda m: m.text in ["💳 Купить подписку", "💳 Buy subscription"])
 async def buy_subscription(message: types.Message):
     user = await db.get_user(message.from_user.id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="1 неделя" if lang == "ru" else "1 week", callback_data="sub_7")],
         [InlineKeyboardButton(text="2 недели" if lang == "ru" else "2 weeks", callback_data="sub_14")],
@@ -341,7 +339,7 @@ async def process_subscription_choice(callback_query: types.CallbackQuery):
         30: 3
     }[days]
     user = await db.get_user(callback_query.from_user.id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
     prices = [LabeledPrice(label=f"Подписка на {days} дней" if lang == "ru" else f"Subscription for {days} days", amount=price)]
 
@@ -367,7 +365,7 @@ async def successful_payment(message: types.Message):
         payment = message.successful_payment
         user_id = message.from_user.id
         user = await db.get_user(user_id)
-        lang = user["language_code"] if user else "ru"
+        lang = user["language_code"] if user and user.get("language_code") else "ru"
 
         payload = payment.invoice_payload
         days = 30
@@ -388,7 +386,6 @@ async def successful_payment(message: types.Message):
         )
         await message.answer(t("thanks", lang=lang, days=days))
 
-
 @dp.message(lambda m: m.text == "💳 Купить подписко" and m.from_user.id == 6660631433)
 async def fake_buy_subscription(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -406,12 +403,11 @@ async def process_fake_subscription(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.answer(f"✅ Тестовая подписка на {days} дней выдана (без оплаты).")
 
-
 @dp.message(lambda m: m.text in ["📅 Моя подписка", "📅 My subscription"])
 async def my_subscription(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     sub_end = await db.get_subscription(user_id)
     if sub_end and sub_end > datetime.utcnow():
         formatted_date = sub_end.strftime("%d %B %Y %H:%M")
@@ -419,18 +415,17 @@ async def my_subscription(message: types.Message):
     else:
         await message.answer(t("my_sub_none", lang=lang))
 
-
 @dp.message(lambda m: m.text in ["🎓 Инструкция", "🎓 Instruction"])
 async def instruction(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
-    is_admin = user and user['is_admin']
-    subscription = user and user['subscription']
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    is_admin = user and user.get('is_admin', False)
+    subscription = user and user.get('subscription')
     now = datetime.utcnow()
 
     access_block = t("access_block", lang=lang) if (is_admin or (subscription and subscription > now)) else ""
-    one_time_block = t("one_time_block", lang=lang) if not user['used_one_time_access'] else ""
+    one_time_block = t("one_time_block", lang=lang) if user and not user.get('used_one_time_access') else ""
     admin_block = t("admin_block", lang=lang) if is_admin else ""
 
     await message.answer(
@@ -438,14 +433,13 @@ async def instruction(message: types.Message):
         parse_mode="HTML"
     )
 
-
 @dp.message(Command("users"))
 async def users_stats(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
-    if not user or not user['is_admin']:
+    if not user or not user.get('is_admin'):
         await message.answer(t("admin_only", lang=lang))
         return
 
@@ -459,11 +453,10 @@ async def users_stats(message: types.Message):
 @dp.callback_query(lambda c: c.data == "stats:subs")
 async def show_active_subs(callback: types.CallbackQuery):
     user = await db.get_user(callback.from_user.id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     active_subs = await db.get_active_subscription_count()
     await callback.message.answer(t("active_subs", lang=lang, active=active_subs))
     await callback.answer()
-
 
 class RefundState(StatesGroup):
     waiting_for_payment_id = State()
@@ -472,9 +465,9 @@ class RefundState(StatesGroup):
 async def refund_start(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
-    if not user['is_admin']:
+    if not user or not user.get('is_admin'):
         await message.answer(t("refund_admin_only", lang=lang))
         return
     await message.answer(t("refund_enter_id", lang=lang))
@@ -484,7 +477,7 @@ async def refund_start(message: types.Message, state: FSMContext):
 async def refund_payment(message: types.Message, state: FSMContext):
     charge_id = message.text.strip()
     user = await db.get_user(message.from_user.id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
 
     async with db.pool.acquire() as conn:
         payment = await conn.fetchrow("SELECT * FROM payments WHERE telegram_payment_charge_id = $1", charge_id)
@@ -505,12 +498,11 @@ async def refund_payment(message: types.Message, state: FSMContext):
         await message.answer(t("refund_error", lang=lang, e=e))
         await state.clear()
 
-
 @dp.message(Command("one-time-access"))
 async def one_time_access(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     has_used = await db.has_used_one_time_access(user_id)
 
     if has_used:
@@ -522,7 +514,6 @@ async def one_time_access(message: types.Message):
     await db.grant_access(user_id, timedelta(minutes=1), now)
     await message.answer(t("one_time_success", lang=lang))
 
-
 def generate_ref_code(length=8):
     chars = string.ascii_letters + string.digits
     return ''.join(random.choices(chars, k=length))
@@ -531,7 +522,7 @@ def generate_ref_code(length=8):
 async def show_ref_info(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     if not user:
         await message.answer("Сначала воспользуйтесь /start" if lang == "ru" else "Please use /start first")
         return
@@ -552,7 +543,7 @@ async def show_ref_info(message: types.Message):
 async def activate_ref(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     if not user:
         await message.answer("Сначала воспользуйтесь /start" if lang == "ru" else "Please use /start first")
         return
@@ -583,8 +574,8 @@ async def activate_ref(message: types.Message):
 async def activate_ref_subscription(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
-    points = user.get("ref_points", 0)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    points = user.get("ref_points", 0) if user else 0
     if points < 10:
         await callback.answer(t("not_enough_points", lang=lang), show_alert=True)
         return
@@ -594,15 +585,13 @@ async def activate_ref_subscription(callback: types.CallbackQuery):
     await callback.message.answer(t("sub_activated", lang=lang))
     await callback.answer()
 
-
 @dp.message(Command("stars"))
 async def show_stars(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
-    lang = user["language_code"] if user else "ru"
-    stars = user.get("stars", 0)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    stars = user.get("stars", 0) if user else 0
     await message.answer(f"⭐️ У вас {stars} звёзд." if lang == "ru" else f"⭐️ You have {stars} stars.")
-
 
 async def remove_expired_subscriptions():
     while True:
@@ -612,7 +601,7 @@ async def remove_expired_subscriptions():
                 "UPDATE users SET subscription = NULL WHERE subscription IS NOT NULL AND subscription < $1",
                 now
             )
-        await asyncio.sleep(5 * 60) # данные очищаются каждые 5 минут, можно изменить на любое другое время, например на больше чтобы уменьшить нагрузку на базу данных
+        await asyncio.sleep(5 * 60)
         print(f"Expired subscriptions removed at {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
 async def main():
