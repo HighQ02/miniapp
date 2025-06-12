@@ -294,7 +294,7 @@ async def delete_product(request):
 
 
 # Создаем приложение
-app = web.Application()
+app = web.Application(client_max_size=500*1024**2) # 500 MB
 app.on_startup.append(startup)
 
 # Добавляем маршруты
