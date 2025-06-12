@@ -11,7 +11,7 @@ const Header = ({ isAdmin }) => {
       </div>
 
       <nav>
-        <Link to="/" style={isActive(location.pathname, "/")}>Товары</Link>
+        <Link to="/faq" style={isActive(location.pathname, "/faq")}>FAQ</Link>
         {isAdmin && (
             <Link to="/admin" style={isActive(location.pathname, "/admin")}>Админ-панель</Link>
         )}

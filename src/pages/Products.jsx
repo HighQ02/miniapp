@@ -8,7 +8,7 @@ const Products = () => {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('https://check-bot.top/api/products');
+        const res = await fetch('https://check-bot.top/api/');
         const data = await res.json();
         setProducts(data || []);
       } catch (error) {
