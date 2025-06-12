@@ -301,7 +301,7 @@ app.on_startup.append(startup)
 app.add_routes([
     web.get('/check', check_subscription),
     web.get('/check-admin', check_admin),
-    web.get('/products', get_products),
+    web.get('/', get_products),
     web.get('/products/{id}', get_product_by_id),
     web.post('/admin/add-product', handle_add_product),
     web.post('/admin/delete-image', delete_image),

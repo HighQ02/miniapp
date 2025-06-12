@@ -1,6 +1,6 @@
 import React from "react";
 
-const Home = () => {
+const FAQ = () => {
   return (
     <div className="home-container">
       <div className="home-overlay">
@@ -14,4 +14,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default FAQ;

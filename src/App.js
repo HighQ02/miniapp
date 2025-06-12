@@ -4,7 +4,7 @@ import useTelegramUser from './hooks/useTelegramUser';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Home from './pages/Home';
+import FAQ from './pages/FAQ';
 import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import AdminPanel from './pages/AdminPanel';
@@ -24,8 +24,8 @@ const App = () => {
     <Router>
       <Header isAdmin={isAdmin} />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetails isAdmin={isAdmin} />} />
         {isAdmin && <Route path="/admin" element={<AdminPanel />} />}
         {isAdmin && <Route path="/admin/add" element={<AddProduct />} />}
