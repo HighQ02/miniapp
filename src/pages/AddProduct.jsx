@@ -87,7 +87,7 @@ const AddProduct = () => {
 
   return (
     <div style={{
-      maxWidth: 500, margin: '40px auto', background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0001', padding: 32
+      maxWidth: 500, margin: '32px auto', padding: 24,
     }}>
       <h2 style={{textAlign:'center'}}>Добавить товар</h2>
       {error && <p style={{ color: 'red', textAlign:'center' }}>{error}</p>}
