@@ -299,15 +299,15 @@ app.on_startup.append(startup)
 
 # Добавляем маршруты
 app.add_routes([
-    web.get('/api/check', check_subscription),
-    web.get('/api/check-admin', check_admin),
-    web.get('/api/products', get_products),
-    web.get('/api/products/{id}', get_product_by_id),
-    web.post('/api/admin/add-product', handle_add_product),
-    web.post('/api/admin/delete-image', delete_image),
-    web.post('/api/admin/delete-video', delete_video),
-    web.post('/api/admin/update-product', update_product),
-    web.post('/api/admin/delete-product', delete_product),
+    web.get('/check', check_subscription),
+    web.get('/check-admin', check_admin),
+    web.get('/products', get_products),
+    web.get('/products/{id}', get_product_by_id),
+    web.post('/admin/add-product', handle_add_product),
+    web.post('/admin/delete-image', delete_image),
+    web.post('/admin/delete-video', delete_video),
+    web.post('/admin/update-product', update_product),
+    web.post('/admin/delete-product', delete_product),
 ])
 
 
