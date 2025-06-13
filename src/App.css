@@ -4,7 +4,7 @@ body {
   background-color: #181818;
   color: #e6e6e6;
   /* Паттерн */
-  background-image: url('/pattern-tg.png'); /* Переименуйте ваш паттерн в public/pattern-tg.png */
+  background-image: url('/images/pattern-tg.png'); /* Переименуйте ваш паттерн в public/pattern-tg.png */
   background-repeat: repeat;
   background-size: 400px;
   background-position: center;
