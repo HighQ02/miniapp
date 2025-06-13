@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import "./App.css";
 
 const API_URL = "https://check-bot.top/api";
 
