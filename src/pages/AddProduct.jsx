@@ -86,9 +86,14 @@ const AddProduct = () => {
   };
 
   return (
-    <div style={{
-      maxWidth: 500, margin: '32px auto', padding: 24,
-    }}>
+    <div className="admin-container">
+      <button
+        className="admin-editor-save-btn admin-editor-back-btn"
+        onClick={() => navigate("/admin")}
+        style={{ marginBottom: 18 }}
+      >
+        ← Назад
+      </button>
       <h2 style={{textAlign:'center'}}>Добавить товар</h2>
       {error && <p style={{ color: 'red', textAlign:'center' }}>{error}</p>}
       <form onSubmit={handleSubmit} style={{display:'flex', flexDirection:'column', gap:16}}>
