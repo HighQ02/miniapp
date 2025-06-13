@@ -7,13 +7,13 @@ const Header = ({ isAdmin }) => {
   return (
     <header>
       <div>
-        <Link to="/">ReadOver</Link>
+        <Link to="/">Товары</Link>
       </div>
 
       <nav>
         <Link to="/faq" style={isActive(location.pathname, "/faq")}>FAQ</Link>
         {isAdmin && (
-            <Link to="/admin" style={isActive(location.pathname, "/admin")}>Админ-панель</Link>
+            <Link to="/admin" style={isActive(location.pathname, "/admin")}>Админ панель</Link>
         )}
       </nav>
     </header>
@@ -23,7 +23,7 @@ const Header = ({ isAdmin }) => {
 function isActive(currentPath, targetPath) {
   const isCurrent = currentPath === targetPath;
   return {
-    color: isCurrent ? "#00ffcc" : "#fff",
+    color: isCurrent ? "rgb(118,106,200)" : "#fff",
     textDecoration: "none",
     fontWeight: isCurrent ? "bold" : "normal",
   };

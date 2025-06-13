@@ -61,8 +61,8 @@ const Products = () => {
             <span className="product-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
             <img src={API_URL + p.thumbnail} alt={`Товар ${p.id}`} className="product-img" />
             <div className="product-card-icons">
-              {p.has_video && <span className="product-card-icon">💧</span>}
-              {p.is_hot && <span className="product-card-icon product-card-icon-hot">💧⭐</span>}
+              {p.has_video && <span className="product-card-icon"> 🎥 </span>}
+              {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}
             </div>
           </div>
         ))}
