@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import "./Admin.css";
 
 const API_URL = "https://check-bot.top/api";
+const PHOTOS_PER_PAGE = 2; // поменяете на 40 когда нужно
 
 const AdminEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
   const [localIsHot, setLocalIsHot] = useState(false);
   const [localHasVideo, setLocalHasVideo] = useState(false);
   const [notif, setNotif] = useState("");
+  const [photoPage, setPhotoPage] = useState(1);
+  
+  const fromPage = location.state?.fromPage || 1;
 
   useEffect(() => {
     fetch(`${API_URL}/products/${id}`)
@@ -70,7 +76,7 @@ const AdminEditor = () => {
     });
     setLoading(false);
     showNotif("Товар удалён");
-    setTimeout(() => navigate("/admin"), 1000);
+    setTimeout(() => navigate("/admin" + (location.state?.fromPage ? `?page=${location.state.fromPage}` : "")), 1000);
   };
 
   const handleSave = async () => {
@@ -93,36 +99,28 @@ const AdminEditor = () => {
     showNotif("Сохранено!");
   };
 
+  // Пагинация фото
+  const images = product?.images || [];
+  const totalPages = Math.ceil(images.length / PHOTOS_PER_PAGE);
+  const pagedImages = images.slice((photoPage - 1) * PHOTOS_PER_PAGE, photoPage * PHOTOS_PER_PAGE);
+
   if (!product) return <div>Загрузка...</div>;
 
   return (
-    <div style={{
-      maxWidth: 700,
-      margin: "32px auto",
-      padding: 24,
-      borderRadius: 12,
-      boxShadow: "0 2px 12px #0001"
-    }}>
+    <div className="admin-editor-container">
       {notif && (
-        <div style={{
-          position: "fixed",
-          top: 30,
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "#222",
-          color: "#fff",
-          padding: "12px 32px",
-          borderRadius: 8,
-          zIndex: 1000,
-          fontSize: 18,
-          opacity: 0.97
-        }}>
-          {notif}
-        </div>
+        <div className="admin-editor-notif">{notif}</div>
       )}
 
-      <h2 style={{ marginBottom: 20 }}>Редактирование товара №{product.id}</h2>
-      <div style={{ marginBottom: 24 }}>
+      <button
+        className="admin-editor-save-btn admin-editor-back-btn"
+        onClick={() => navigate(`/admin?page=${fromPage}`)}
+      >
+        ← Назад
+      </button>
+
+      <h2 className="admin-editor-header">Редактирование товара №{product.id}</h2>
+      <div className="admin-editor-checkbox-group" style={{ marginBottom: 24 }}>
         <label>
           <input
             type="checkbox"
@@ -144,100 +142,33 @@ const AdminEditor = () => {
         <button
           onClick={handleSave}
           disabled={loading}
-          style={{
-            marginLeft: 32,
-            background: "#1976d2",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            padding: "8px 22px",
-            fontWeight: 500,
-            fontSize: 16,
-            cursor: "pointer",
-            transition: "background 0.2s"
-          }}
+          className="admin-editor-save-btn"
         >
           Сохранить
         </button>
       </div>
 
       {/* Фото */}
-      {product.images.length > 0 && (
+      {images.length > 0 && (
         <>
           <h3 style={{ marginBottom: 12 }}>Фото</h3>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 16,
-              marginBottom: 24
-            }}
-          >
-            {product.images.map((img, idx) => {
+          <div className="admin-editor-photo-grid">
+            {pagedImages.map((img, idx) => {
               const relativeImg = img.split('/').slice(-2).join('/');
               return (
-                <div
-                  key={idx}
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    aspectRatio: "1 / 1",
-                    overflow: "hidden",
-                    borderRadius: 8,
-                    border: "1px solid #eee",
-                    background: "#f3f3f3",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                >
+                <div key={idx} className="admin-editor-photo-item">
                   <img
                     src={API_URL + img}
                     alt={`Фото ${idx}`}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      filter: "grayscale(0.15) brightness(0.95)"
-                    }}
+                    className="admin-editor-photo-img"
                   />
-                  <span style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    color: "#cacaca",
-                    fontWeight: 700,
-                    fontSize: 28,
-                    background: "rgba(0,0,0,0.6)",
-                    borderRadius: 8,
-                    padding: "50%"
-                  }}>
-                    {idx + 1}
+                  <span className="admin-editor-photo-num">
+                    {(photoPage - 1) * PHOTOS_PER_PAGE + idx + 1}
                   </span>
                   <button
                     onClick={() => handleDeleteImage(relativeImg)}
                     disabled={loading}
-                    style={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      background: "rgba(255,255,255,0.85)",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: 28,
-                      height: 28,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 18,
-                      color: "#d32f2f",
-                      cursor: "pointer",
-                      opacity: 0.7,
-                      transition: "opacity 0.2s"
-                    }}
-                    onMouseOver={e => (e.currentTarget.style.opacity = 1)}
-                    onMouseOut={e => (e.currentTarget.style.opacity = 0.7)}
+                    className="admin-editor-delete-btn"
                     title="Удалить фото"
                   >
                     ×
@@ -246,6 +177,24 @@ const AdminEditor = () => {
               );
             })}
           </div>
+          {/* Пагинация */}
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, margin: "18px 0" }}>
+              <button
+                onClick={() => setPhotoPage(p => Math.max(1, p - 1))}
+                disabled={photoPage === 1}
+                className="admin-editor-save-btn"
+                style={{ background: "#23232d", color: "#2aabee" }}
+              >←</button>
+              <span style={{ alignSelf: "center" }}>{photoPage} / {totalPages}</span>
+              <button
+                onClick={() => setPhotoPage(p => Math.min(totalPages, p + 1))}
+                disabled={photoPage === totalPages}
+                className="admin-editor-save-btn"
+                style={{ background: "#23232d", color: "#2aabee" }}
+              >→</button>
+            </div>
+          )}
         </>
       )}
 
@@ -253,46 +202,20 @@ const AdminEditor = () => {
       {product.videos.length > 0 && (
         <>
           <h3 style={{ marginBottom: 12 }}>Видео</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 24, marginBottom: 24 }}>
+          <div className="admin-editor-video-list">
             {product.videos.map((video, idx) => {
               const relativeVideo = video.split('/').slice(-2).join('/');
               return (
-                <div key={idx} style={{ position: "relative", width: "100%" }}>
+                <div key={idx} className="admin-editor-video-item">
                   <video
                     src={API_URL + video}
                     controls
-                    style={{
-                      borderRadius: 8,
-                      background: "#000",
-                      objectFit: "cover",
-                      width: "100%",
-                      height: 340,
-                      display: "block"
-                    }}
+                    className="admin-editor-video"
                   />
                   <button
                     onClick={() => handleDeleteVideo(relativeVideo)}
                     disabled={loading}
-                    style={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      background: "rgba(255,255,255,0.85)",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: 28,
-                      height: 28,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 18,
-                      color: "#d32f2f",
-                      cursor: "pointer",
-                      opacity: 0.7,
-                      transition: "opacity 0.2s"
-                    }}
-                    onMouseOver={e => (e.currentTarget.style.opacity = 1)}
-                    onMouseOut={e => (e.currentTarget.style.opacity = 0.7)}
+                    className="admin-editor-delete-btn"
                     title="Удалить видео"
                   >
                     ×
@@ -305,20 +228,7 @@ const AdminEditor = () => {
       )}
 
       <button
-        style={{
-          marginTop: 24,
-          background: "#d32f2f",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          padding: "12px 32px",
-          fontWeight: 600,
-          fontSize: 18,
-          cursor: "pointer",
-          display: "block",
-          width: "100%",
-          transition: "background 0.2s"
-        }}
+        className="admin-editor-delete-product-btn"
         onClick={handleDeleteProduct}
         disabled={loading}
       >
