@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './App.css';
 
 const API_URL = "https://check-bot.top/api";
 const ITEMS_PER_PAGE = 2;
