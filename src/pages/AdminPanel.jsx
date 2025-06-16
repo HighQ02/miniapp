@@ -53,6 +53,7 @@ const AdminPanel = () => {
           <input type="checkbox" checked={filterVideo} onChange={e => setFilterVideo(e.target.checked)} /> 🎥
         </label>
       </div>
+      <Link to="/admin/add" className="admin-add-btn">➕ Добавить товар</Link>
       <div className="admin-grid">
         {paged.map((p, idx) => (
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
