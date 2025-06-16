@@ -1,9 +1,5 @@
 import aioboto3
-
-BUCKET_NAME = "mini-app-storage"
-ENDPOINT_URL = "https://check-bot.top"
-ACCESS_KEY = "YCAJEpOQBOomKtXw9sX3Q8U5H"
-SECRET_KEY = "YCPdsxA8m1-mcGozFDMx5Vkz-F_R8fHHws73fuD7"
+from config import BUCKET_NAME, ENDPOINT_URL, ACCESS_KEY, SECRET_KEY
 
 session = aioboto3.Session()
 
