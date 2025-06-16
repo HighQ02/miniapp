@@ -64,8 +64,8 @@ const AdminPanel = () => {
             />
             <span className="admin-id-center">{p.id}</span>
             <div className="admin-card-icons">
-              {p.has_video && <span className="admin-card-icon">💧</span>}
-              {p.is_hot && <span className="admin-card-icon admin-card-icon-hot">💧⭐</span>}
+              {p.has_video && <span className="admin-card-icon"> 🎥 </span>}
+              {p.is_hot && <span className="admin-card-icon admin-card-icon-hot"> 🔥 </span>}
             </div>
           </div>
         ))}
