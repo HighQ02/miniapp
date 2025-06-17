@@ -158,7 +158,7 @@ const AdminEditor = () => {
               return (
                 <div key={idx} className="admin-editor-photo-item">
                   <img
-                    src={API_URL + img}
+                    src={img}
                     alt={`Фото ${idx}`}
                     className="admin-editor-photo-img"
                   />
@@ -208,7 +208,7 @@ const AdminEditor = () => {
               return (
                 <div key={idx} className="admin-editor-video-item">
                   <video
-                    src={API_URL + video}
+                    src={video}
                     controls
                     className="admin-editor-video"
                   />

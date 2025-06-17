@@ -59,7 +59,7 @@ const Products = () => {
         {paged.map((p, idx) => (
           <div key={p.id} className="product-card" onClick={() => handleCardClick(p.id)}>
             <span className="product-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
-            <img src={API_URL + p.thumbnail} alt={`Товар ${p.id}`} className="product-img" />
+            <img src={p.thumbnail} alt={`Товар ${p.id}`} className="product-img" />
             <div className="product-card-icons">
               {p.has_video && <span className="product-card-icon"> 🎥 </span>}
               {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}

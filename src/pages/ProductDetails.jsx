@@ -114,7 +114,7 @@ const ProductDetails = () => {
                         onClick={() => openFullscreen(i)}
                       >
                         <img
-                          src={API_URL + images[i]}
+                          src={images[i]}
                           alt={`Фото ${i + 1}`}
                           className="product-details-image"
                           draggable={false}
@@ -136,7 +136,7 @@ const ProductDetails = () => {
                       onClick={() => openFullscreen(i)}
                     >
                       <img
-                        src={API_URL + images[i]}
+                        src={images[i]}
                         alt={`Фото ${i + 1}`}
                         className="product-details-image"
                         draggable={false}
@@ -152,7 +152,7 @@ const ProductDetails = () => {
                     onClick={() => openFullscreen(8)}
                   >
                     <img
-                      src={API_URL + images[8]}
+                      src={images[8]}
                       alt="Фото 9"
                       className="product-details-image product-details-image-blur"
                       draggable={false}
@@ -173,7 +173,7 @@ const ProductDetails = () => {
               {product.videos.map((video, index) => (
                 <video
                   key={index}
-                  src={API_URL + video}
+                  src={video}
                   controls
                   controlsList="nodownload noremoteplayback"
                   disablePictureInPicture
@@ -197,7 +197,7 @@ const ProductDetails = () => {
       {fullscreenIdx !== null && (
         <div className="fullscreen-modal" onClick={closeFullscreen}>
           <img
-            src={API_URL + images[fullscreenIdx]}
+            src={images[fullscreenIdx]}
             alt={`Фото ${fullscreenIdx + 1}`}
             className="fullscreen-modal-img"
             draggable={false}

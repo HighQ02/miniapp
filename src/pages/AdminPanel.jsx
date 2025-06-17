@@ -59,7 +59,7 @@ const AdminPanel = () => {
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
             <span className="admin-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
             <img
-              src={API_URL + (p.thumbnail || (p.images && p.images[0]) || "")}
+              src={(p.thumbnail || (p.images && p.images[0]) || "")}
               alt={`Product ${p.id}`}
               className="admin-img"
             />
