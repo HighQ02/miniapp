@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import useTelegramUser from "../hooks/useTelegramUser";
+import t from "../i18n";
 import "./Admin.css";
 
 const API_URL = "https://check-bot.top/api";
 const ITEMS_PER_PAGE = 2;
 
-const AdminPanel = () => {
+const AdminPanel = ({ lang: propLang }) => {
+  const { lang: hookLang } = useTelegramUser();
+  const lang = propLang || hookLang || "ru";
+
   const [products, setProducts] = useState([]);
   const [searchId, setSearchId] = useState("");
   const [filterHot, setFilterHot] = useState(false);
@@ -37,30 +42,32 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-container">
-      <h2>Админ-панель</h2>
+      <h2>{t("admin_panel", lang)}</h2>
       <input
         type="text"
-        placeholder="Поиск по ID"
+        placeholder={t("search_by_id", lang)}
         value={searchId}
         onChange={e => setSearchId(e.target.value)}
         className="admin-search"
       />
       <div className="products-filters">
         <label>
-          <input type="checkbox" checked={filterHot} onChange={e => setFilterHot(e.target.checked)} /> 🔥
+          <input type="checkbox" checked={filterHot} onChange={e => setFilterHot(e.target.checked)} /> {t("hot", lang)}
         </label>
         <label>
-          <input type="checkbox" checked={filterVideo} onChange={e => setFilterVideo(e.target.checked)} /> 🎥
+          <input type="checkbox" checked={filterVideo} onChange={e => setFilterVideo(e.target.checked)} /> {t("video", lang)}
         </label>
       </div>
-      <Link to="/admin/add" className="admin-add-btn">➕ Добавить товар</Link>
+      <Link to="/admin/add" className="admin-add-btn">➕ {t("add_product", lang)}</Link>
       <div className="admin-grid">
         {paged.map((p, idx) => (
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
             <span className="admin-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
             <img
               src={(p.thumbnail || (p.images && p.images[0]) || "")}
-              alt={`Product ${p.id}`}
+              alt={t("product_alt", lang) + ` ${p.id}`}
+              onContextMenu={e => e.preventDefault()}
+              draggable={false}
               className="admin-img"
             />
             <span className="admin-id-center">{p.id}</span>

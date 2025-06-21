@@ -22,16 +22,20 @@ async def check_subscription(request):
         return web.json_response({"error": "user_id must be int"}, status=400)
     try:
         subscription = await db.get_subscription(user_id)
+        free_until = await db.get_free_until(user_id)  # добавьте этот метод в mydb.py
     except Exception as e:
         logging.error(f"DB error when getting subscription for user_id={user_id}: {e}")
         return web.json_response({"error": "database error"}, status=500)
 
-    if subscription is None:
-        return web.json_response({"hasSubscription": False})
-
     now = datetime.utcnow()
-    has_subscription = subscription > now
-    return web.json_response({"hasSubscription": has_subscription})
+    has_subscription = subscription and subscription > now
+    user = await db.get_user_profile(user_id)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    return web.json_response({
+        "hasSubscription": has_subscription,
+        "free_until": free_until.isoformat() if free_until else None,
+        "lang": lang
+    })
 
 async def check_admin(request):
     user_id = request.rel_url.query.get('user_id')

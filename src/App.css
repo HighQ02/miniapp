@@ -125,6 +125,8 @@ h1, h2, h3 {
   object-fit: cover;
   background: #222;
   border-radius: 18px;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .product-card-number, .admin-card-number {

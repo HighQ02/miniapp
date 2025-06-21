@@ -1,16 +1,20 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import useTelegramUser from "../hooks/useTelegramUser";
+import t from "../i18n";
 
 const API_URL = "https://check-bot.top/api";
 
-const ProductDetails = () => {
+const ProductDetails = ({ lang: propLang }) => {
+  const { lang: hookLang } = useTelegramUser();
+  const lang = propLang || hookLang || "ru";
+
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [product, setProduct] = useState(null);
   const [fullscreenIdx, setFullscreenIdx] = useState(null);
 
-  // Для возврата на нужную страницу
   const fromPage = location.state?.fromPage || 1;
 
   useEffect(() => {
@@ -20,7 +24,6 @@ const ProductDetails = () => {
       .catch(console.error);
   }, [id]);
 
-  // Обработчики для листания в полноэкранном режиме
   const handleKeyDown = useCallback(
     (e) => {
       if (fullscreenIdx === null) return;
@@ -51,7 +54,6 @@ const ProductDetails = () => {
     };
   }, [fullscreenIdx, handleKeyDown]);
 
-  // Свайпы для мобильных
   useEffect(() => {
     if (fullscreenIdx === null) return;
     let startX = null;
@@ -75,11 +77,10 @@ const ProductDetails = () => {
     };
   }, [fullscreenIdx, product]);
 
-  if (!product) return <div className="products-loading">Загрузка...</div>;
+  if (!product) return <div className="products-loading">{t("products_loading", lang)}</div>;
 
   const images = product.images || [];
   const gridImages = images.slice(0, 8);
-  const showMore = images.length > 9;
 
   const openFullscreen = (idx) => setFullscreenIdx(idx);
   const closeFullscreen = () => setFullscreenIdx(null);
@@ -91,10 +92,10 @@ const ProductDetails = () => {
         onClick={() => navigate(`/?page=${fromPage}`)}
         style={{ marginBottom: 18 }}
       >
-        ← Назад
+        ← {t("back", lang)}
       </button>
       <div className="product-details-card">
-        <h2>Товар №{product.id}</h2>
+        <h2>{t("product_number", lang)} {product.id}</h2>
         <div className="product-details-icons">
           {product.is_hot && <span className="icon-hot">🔥</span>}
           {product.has_video && <span className="icon-video">🎥</span>}
@@ -115,7 +116,8 @@ const ProductDetails = () => {
                       >
                         <img
                           src={images[i]}
-                          alt={`Фото ${i + 1}`}
+                          alt={t("photo", lang) + ` ${i + 1}`}
+                          onContextMenu={e => e.preventDefault()}
                           className="product-details-image"
                           draggable={false}
                         />
@@ -137,7 +139,8 @@ const ProductDetails = () => {
                     >
                       <img
                         src={images[i]}
-                        alt={`Фото ${i + 1}`}
+                        alt={t("photo", lang) + ` ${i + 1}`}
+                        onContextMenu={e => e.preventDefault()}
                         className="product-details-image"
                         draggable={false}
                       />
@@ -153,11 +156,12 @@ const ProductDetails = () => {
                   >
                     <img
                       src={images[8]}
-                      alt="Фото 9"
+                      alt={t("photo", lang) + " 9"}
+                      onContextMenu={e => e.preventDefault()}
                       className="product-details-image product-details-image-blur"
                       draggable={false}
                     />
-                    <span className="product-details-image-more-text">Далее...</span>
+                    <span className="product-details-image-more-text">{t("more", lang)}</span>
                   </div>
                 );
               }
@@ -168,7 +172,7 @@ const ProductDetails = () => {
         {/* Видео */}
         {product.videos && product.videos.length > 0 && (
           <div>
-            <h3>Видео</h3>
+            <h3>{t("video", lang)}</h3>
             <div className="product-details-video-list">
               {product.videos.map((video, index) => (
                 <video
@@ -177,6 +181,7 @@ const ProductDetails = () => {
                   controls
                   controlsList="nodownload noremoteplayback"
                   disablePictureInPicture
+                  onContextMenu={e => e.preventDefault()}
                   className="product-details-video"
                   onClick={e => {
                     if (e.target === e.currentTarget) {
@@ -198,7 +203,8 @@ const ProductDetails = () => {
         <div className="fullscreen-modal" onClick={closeFullscreen}>
           <img
             src={images[fullscreenIdx]}
-            alt={`Фото ${fullscreenIdx + 1}`}
+            alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
+            onContextMenu={e => e.preventDefault()}
             className="fullscreen-modal-img"
             draggable={false}
             onClick={e => e.stopPropagation()}
@@ -211,7 +217,7 @@ const ProductDetails = () => {
                 e.stopPropagation();
                 setFullscreenIdx(fullscreenIdx - 1);
               }}
-              aria-label="Назад"
+              aria-label={t("back", lang)}
             >
               &#8592;
             </button>
@@ -223,7 +229,7 @@ const ProductDetails = () => {
                 e.stopPropagation();
                 setFullscreenIdx(fullscreenIdx + 1);
               }}
-              aria-label="Вперёд"
+              aria-label={t("forward", lang)}
             >
               &#8594;
             </button>
@@ -233,7 +239,7 @@ const ProductDetails = () => {
             <span
               className="fullscreen-modal-close"
               onClick={closeFullscreen}
-              title="Закрыть"
+              title={t("close", lang)}
             >
               &times;
             </span>

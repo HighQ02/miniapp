@@ -400,7 +400,7 @@ async def buy_subscription(message: types.Message):
         [InlineKeyboardButton(text="1 месяц = 1000 ⭐️" if lang == "ru" else "1 month = 1000 ⭐️", callback_data="sub_30")],
         [InlineKeyboardButton(text="3 месяца = 2500 ⭐️" if lang == "ru" else "3 month = 2500 ⭐️", callback_data="sub_90")],
         [InlineKeyboardButton(text="6 месяцев = 4500 ⭐️" if lang == "ru" else "6 month = 4500 ⭐️", callback_data="sub_180")],
-        [InlineKeyboardButton(text="1 год = 8000 ⭐️" if lang == "ru" else "1 year = 8000 ⭐️", callback_data="sub_360")],
+        [InlineKeyboardButton(text="1 год = 8000 ⭐️" if lang == "ru" else "1 year = 8000 ⭐️", callback_data="sub_365")]
     ])
     await message.answer(t("choose_period", lang=lang), reply_markup=keyboard)
 
@@ -583,8 +583,24 @@ async def one_time_access(message: types.Message):
 
     await db.set_one_time_access_used(user_id)
     now = datetime.utcnow()
+    free_until = now + timedelta(minutes=5)
     await db.grant_access(user_id, timedelta(minutes=5), now)
+    await db.set_free_until(user_id, free_until)
     await message.answer(t("one_time_success", lang=lang))
+
+    # Запускаем индивидуальный таймер для удаления free-доступа
+    async def remove_free_access():
+        await asyncio.sleep(5 * 60 + 10)
+        # Проверяем, не купил ли пользователь подписку за это время
+        sub_end = await db.get_subscription(user_id)
+        if sub_end and sub_end > datetime.utcnow():
+            await db.set_free_until(user_id, None)
+            return
+        # Удаляем подписку
+        await db.remove_subscription(user_id)
+        await db.set_free_until(user_id, None)
+
+    asyncio.create_task(remove_free_access())
 
 
 def generate_ref_code(length=8):
@@ -726,11 +742,17 @@ async def remove_expired_subscriptions():
     while True:
         now = datetime.utcnow()
         async with db.pool.acquire() as conn:
+            # Не трогаем пользователей, у которых free_until > now (их удаляет индивидуальный таймер)
             await conn.execute(
-                "UPDATE users SET subscription = NULL WHERE subscription IS NOT NULL AND subscription < $1",
+                """
+                UPDATE users SET subscription = NULL
+                WHERE subscription IS NOT NULL
+                  AND subscription < $1
+                  AND (free_until IS NULL OR free_until < $1)
+                """,
                 now
             )
-        await asyncio.sleep(5 * 60) # check every 5 minutes
+        await asyncio.sleep(1 * 60 * 60) # check every hour
 
 
 async def main():

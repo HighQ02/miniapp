@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useTelegramUser from "../hooks/useTelegramUser";
+import t from "../i18n";
 
-// Можно использовать любой UI-фреймворк, пример с простым модальным окном:
 const Modal = ({ open, onClose, title, children }) => {
   if (!open) return null;
   return (
@@ -21,6 +22,7 @@ const Modal = ({ open, onClose, title, children }) => {
 };
 
 const AddProduct = () => {
+  const { lang } = useTelegramUser();
   const [thumbnail, setThumbnail] = useState(null);
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -42,10 +44,10 @@ const AddProduct = () => {
     e.preventDefault();
 
     if (!thumbnail) {
-      return setError('Пожалуйста, добавьте изображение для витрины.');
+      return setError(t("add_thumbnail_required", lang));
     }
     if (images.length === 0 && videos.length === 0) {
-      return setError('Необходимо добавить хотя бы одно фото или видео.');
+      return setError(t("add_photo_or_video_required", lang));
     }
 
     setError('');
@@ -66,12 +68,12 @@ const AddProduct = () => {
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error('Ошибка сервера: ' + text);
+        throw new Error(t("server_error", lang) + ": " + text);
       }
       if (data.status === 'success') {
-        setModal({ open: true, success: true, message: 'Товар успешно добавлен!' });
+        setModal({ open: true, success: true, message: t("product_added", lang) });
       } else {
-        setModal({ open: true, success: false, message: data.error || 'Ошибка при добавлении товара.' });
+        setModal({ open: true, success: false, message: data.error || t("add_product_error", lang) });
       }
     } catch (e) {
       setModal({ open: true, success: false, message: e.message });
@@ -81,7 +83,7 @@ const AddProduct = () => {
   const handleModalClose = () => {
     setModal({ open: false, success: false, message: '' });
     if (modal.success) {
-      navigate('/admin'); // путь к вашей админ-панели
+      navigate('/admin');
     }
   };
 
@@ -92,36 +94,36 @@ const AddProduct = () => {
         onClick={() => navigate("/admin")}
         style={{ marginBottom: 18 }}
       >
-        ← Назад
+        ← {t("back", lang)}
       </button>
-      <h2 style={{textAlign:'center'}}>Добавить товар</h2>
+      <h2 style={{textAlign:'center'}}>{t("add_product", lang)}</h2>
       {error && <p style={{ color: 'red', textAlign:'center' }}>{error}</p>}
       <form onSubmit={handleSubmit} style={{display:'flex', flexDirection:'column', gap:16}}>
         <label>
-          <span>Изображение на витрину:</span>
+          <span>{t("thumbnail", lang)}:</span>
           <input type="file" accept="image/*" onChange={e => setThumbnail(e.target.files[0])} />
         </label>
         <label>
-          <span>Фотографии:</span>
+          <span>{t("photos", lang)}:</span>
           <input type="file" accept="image/*" multiple onChange={e => setImages([...e.target.files])} />
         </label>
         <label>
-          <span>Видео:</span>
+          <span>{t("videos", lang)}:</span>
           <input type="file" accept="video/*" multiple onChange={e => setVideos([...e.target.files])} />
         </label>
         <label style={{display:'flex',alignItems:'center',gap:8}}>
           <input type="checkbox" checked={hasVideo} onChange={e => setHasVideo(e.target.checked)} disabled={videos.length > 0} />
-          🎥 Есть видео
+          {t("video", lang)}
         </label>
         <label style={{display:'flex',alignItems:'center',gap:8}}>
           <input type="checkbox" checked={isHot} onChange={e => setIsHot(e.target.checked)} />
-          🔥 Горячее предложение
+          {t("hot", lang)}
         </label>
         <button type="submit" style={{
           background:'#1976d2', color:'#fff', border:'none', borderRadius:8, padding:'12px 0', fontSize:18, cursor:'pointer'
-        }}>Добавить товар</button>
+        }}>{t("add_product", lang)}</button>
       </form>
-      <Modal open={modal.open} onClose={handleModalClose} title={modal.success ? "Успех" : "Ошибка"}>
+      <Modal open={modal.open} onClose={handleModalClose} title={modal.success ? t("success", lang) : t("error", lang)}>
         <div style={{textAlign:'center', color: modal.success ? 'green' : 'red', fontSize:18}}>
           {modal.message}
         </div>

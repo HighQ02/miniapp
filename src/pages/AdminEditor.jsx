@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import useTelegramUser from "../hooks/useTelegramUser";
+import t from "../i18n";
 import "./Admin.css";
 
 const API_URL = "https://check-bot.top/api";
 const PHOTOS_PER_PAGE = 2; // поменяете на 40 когда нужно
 
 const AdminEditor = () => {
+  const { lang } = useTelegramUser();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,7 +18,7 @@ const AdminEditor = () => {
   const [localHasVideo, setLocalHasVideo] = useState(false);
   const [notif, setNotif] = useState("");
   const [photoPage, setPhotoPage] = useState(1);
-  
+
   const fromPage = location.state?.fromPage || 1;
 
   useEffect(() => {
@@ -35,7 +38,7 @@ const AdminEditor = () => {
   };
 
   const handleDeleteImage = async (imgPath) => {
-    if (!window.confirm("Удалить это фото?")) return;
+    if (!window.confirm(t("delete_photo_confirm", lang))) return;
     setLoading(true);
     await fetch(`${API_URL}/admin/delete-image`, {
       method: "POST",
@@ -47,11 +50,11 @@ const AdminEditor = () => {
       images: prev.images.filter(img => img.split('/').slice(-2).join('/') !== imgPath)
     }));
     setLoading(false);
-    showNotif("Фото удалено");
+    showNotif(t("photo_deleted", lang));
   };
 
   const handleDeleteVideo = async (videoPath) => {
-    if (!window.confirm("Удалить это видео?")) return;
+    if (!window.confirm(t("delete_video_confirm", lang))) return;
     setLoading(true);
     await fetch(`${API_URL}/admin/delete-video`, {
       method: "POST",
@@ -63,11 +66,11 @@ const AdminEditor = () => {
       videos: prev.videos.filter(v => v.split('/').slice(-2).join('/') !== videoPath)
     }));
     setLoading(false);
-    showNotif("Видео удалено");
+    showNotif(t("video_deleted", lang));
   };
 
   const handleDeleteProduct = async () => {
-    if (!window.confirm("Удалить товар полностью?")) return;
+    if (!window.confirm(t("delete_product_confirm", lang))) return;
     setLoading(true);
     await fetch(`${API_URL}/admin/delete-product`, {
       method: "POST",
@@ -75,7 +78,7 @@ const AdminEditor = () => {
       body: JSON.stringify({ product_id: id }),
     });
     setLoading(false);
-    showNotif("Товар удалён");
+    showNotif(t("product_deleted", lang));
     setTimeout(() => navigate("/admin" + (location.state?.fromPage ? `?page=${location.state.fromPage}` : "")), 1000);
   };
 
@@ -96,7 +99,7 @@ const AdminEditor = () => {
       has_video: localHasVideo
     }));
     setLoading(false);
-    showNotif("Сохранено!");
+    showNotif(t("saved", lang));
   };
 
   // Пагинация фото
@@ -104,7 +107,7 @@ const AdminEditor = () => {
   const totalPages = Math.ceil(images.length / PHOTOS_PER_PAGE);
   const pagedImages = images.slice((photoPage - 1) * PHOTOS_PER_PAGE, photoPage * PHOTOS_PER_PAGE);
 
-  if (!product) return <div>Загрузка...</div>;
+  if (!product) return <div>{t("loading", lang)}</div>;
 
   return (
     <div className="admin-editor-container">
@@ -116,10 +119,10 @@ const AdminEditor = () => {
         className="admin-editor-save-btn admin-editor-back-btn"
         onClick={() => navigate(`/admin?page=${fromPage}`)}
       >
-        ← Назад
+        ← {t("back", lang)}
       </button>
 
-      <h2 className="admin-editor-header">Редактирование товара №{product.id}</h2>
+      <h2 className="admin-editor-header">{t("edit_product", lang)} №{product.id}</h2>
       <div className="admin-editor-checkbox-group" style={{ marginBottom: 24 }}>
         <label>
           <input
@@ -128,7 +131,7 @@ const AdminEditor = () => {
             onChange={() => setLocalIsHot(v => !v)}
             disabled={loading}
           />{" "}
-          Горячее предложение
+          {t("hot", lang)}
         </label>
         <label style={{ marginLeft: 24 }}>
           <input
@@ -137,21 +140,21 @@ const AdminEditor = () => {
             onChange={() => setLocalHasVideo(v => !v)}
             disabled={loading}
           />{" "}
-          Есть видео
+          {t("video", lang)}
         </label>
         <button
           onClick={handleSave}
           disabled={loading}
           className="admin-editor-save-btn"
         >
-          Сохранить
+          {t("save", lang)}
         </button>
       </div>
 
       {/* Фото */}
       {images.length > 0 && (
         <>
-          <h3 style={{ marginBottom: 12 }}>Фото</h3>
+          <h3 style={{ marginBottom: 12 }}>{t("photo", lang)}</h3>
           <div className="admin-editor-photo-grid">
             {pagedImages.map((img, idx) => {
               const relativeImg = img.split('/').slice(-2).join('/');
@@ -159,7 +162,9 @@ const AdminEditor = () => {
                 <div key={idx} className="admin-editor-photo-item">
                   <img
                     src={img}
-                    alt={`Фото ${idx}`}
+                    alt={`${t("photo", lang)} ${idx}`}
+                    onContextMenu={e => e.preventDefault()}
+                    draggable={false}
                     className="admin-editor-photo-img"
                   />
                   <span className="admin-editor-photo-num">
@@ -169,7 +174,7 @@ const AdminEditor = () => {
                     onClick={() => handleDeleteImage(relativeImg)}
                     disabled={loading}
                     className="admin-editor-delete-btn"
-                    title="Удалить фото"
+                    title={t("delete_photo", lang)}
                   >
                     ×
                   </button>
@@ -201,7 +206,7 @@ const AdminEditor = () => {
       {/* Видео */}
       {product.videos.length > 0 && (
         <>
-          <h3 style={{ marginBottom: 12 }}>Видео</h3>
+          <h3 style={{ marginBottom: 12 }}>{t("video", lang)}</h3>
           <div className="admin-editor-video-list">
             {product.videos.map((video, idx) => {
               const relativeVideo = video.split('/').slice(-2).join('/');
@@ -210,13 +215,15 @@ const AdminEditor = () => {
                   <video
                     src={video}
                     controls
+                    onContextMenu={e => e.preventDefault()}
+                    draggable={false}
                     className="admin-editor-video"
                   />
                   <button
                     onClick={() => handleDeleteVideo(relativeVideo)}
                     disabled={loading}
                     className="admin-editor-delete-btn"
-                    title="Удалить видео"
+                    title={t("delete_video", lang)}
                   >
                     ×
                   </button>
@@ -232,7 +239,7 @@ const AdminEditor = () => {
         onClick={handleDeleteProduct}
         disabled={loading}
       >
-        Удалить товар полностью
+        {t("delete_product", lang)}
       </button>
     </div>
   );

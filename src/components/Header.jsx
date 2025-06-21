@@ -1,19 +1,20 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import t from '../i18n';
 
-const Header = ({ isAdmin }) => {
+const Header = ({ isAdmin, lang }) => {
   const location = useLocation();
 
   return (
     <header>
       <div>
-        <Link to="/">Товары</Link>
+        <Link to="/">{t("products", lang)}</Link>
       </div>
 
       <nav>
-        <Link to="/faq" style={isActive(location.pathname, "/faq")}>FAQ</Link>
+        <Link to="/faq" style={isActive(location.pathname, "/faq")}>{t("faq", lang)}</Link>
         {isAdmin && (
-            <Link to="/admin" style={isActive(location.pathname, "/admin")}>Админ панель</Link>
+            <Link to="/admin" style={isActive(location.pathname, "/admin")}>{t("admin_panel", lang)}</Link>
         )}
       </nav>
     </header>

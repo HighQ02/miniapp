@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import t from '../i18n';
 
 const API_URL = "https://check-bot.top/api";
 const ITEMS_PER_PAGE = 2;
 
-const Products = () => {
+const Products = ({ lang }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterHot, setFilterHot] = useState(false);
@@ -23,7 +24,7 @@ const Products = () => {
         const data = await res.json();
         setProducts(data || []);
       } catch (error) {
-        console.error('Ошибка при загрузке товаров', error);
+        console.error('Error loading products', error);
       } finally {
         setLoading(false);
       }
@@ -42,24 +43,24 @@ const Products = () => {
     navigate(`/products/${id}`, { state: { fromPage: page } });
   };
 
-  if (loading) return <div className="products-loading">Загрузка товаров...</div>;
-  if (filtered.length === 0) return <div className="products-empty">Товары не найдены</div>;
+  if (loading) return <div className="products-loading">{t("products_loading", lang)}</div>;
+  if (filtered.length === 0) return <div className="products-empty">{t("products_not_found", lang)}</div>;
 
   return (
     <div>
       <div className="products-filters">
         <label>
-          <input type="checkbox" checked={filterHot} onChange={e => setFilterHot(e.target.checked)} /> 🔥
+          <input type="checkbox" checked={filterHot} onChange={e => setFilterHot(e.target.checked)} /> {t("hot", lang)}
         </label>
         <label>
-          <input type="checkbox" checked={filterVideo} onChange={e => setFilterVideo(e.target.checked)} /> 🎥
+          <input type="checkbox" checked={filterVideo} onChange={e => setFilterVideo(e.target.checked)} /> {t("video", lang)}
         </label>
       </div>
       <div className="products-grid">
         {paged.map((p, idx) => (
           <div key={p.id} className="product-card" onClick={() => handleCardClick(p.id)}>
             <span className="product-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
-            <img src={p.thumbnail} alt={`Товар ${p.id}`} className="product-img" />
+            <img src={p.thumbnail} alt={t("product_alt", lang) + ` ${p.id}`} draggable={false} onContextMenu={e => e.preventDefault()} className="product-img" />
             <div className="product-card-icons">
               {p.has_video && <span className="product-card-icon"> 🎥 </span>}
               {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}

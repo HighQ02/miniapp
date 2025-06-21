@@ -102,6 +102,14 @@ class Database:
         async with self.pool.acquire() as conn:
             result = await conn.fetchval("SELECT used_one_time_access FROM users WHERE user_id = $1;", user_id)
             return result
+        
+    async def set_free_until(self, user_id: int, free_until: datetime):
+        async with self.pool.acquire() as conn:
+            await conn.execute("UPDATE users SET free_until = $1 WHERE user_id = $2", free_until, user_id)
+
+    async def get_free_until(self, user_id: int):
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval("SELECT free_until FROM users WHERE user_id = $1", user_id)
 
 
     async def is_admin(self, user_id: int) -> bool:

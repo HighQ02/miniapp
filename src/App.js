@@ -4,6 +4,7 @@ import useTelegramUser from './hooks/useTelegramUser';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
+import NoSubscription from './components/NoSubscription';
 import FAQ from './pages/FAQ';
 import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
@@ -11,27 +12,29 @@ import AdminPanel from './pages/AdminPanel';
 import AddProduct from './pages/AddProduct';
 import AdminEditor from './pages/AdminEditor';
 
+import t from './i18n';
+
 import './App.css';
 
 const App = () => {
-  const { user, hasSubscription, loading, isAdmin } = useTelegramUser();
+  const { user, hasSubscription, loading, isAdmin, lang } = useTelegramUser();
 
-  if (loading) return <p>Загрузка...</p>;
-  if (!user) return <p>❌ Вы не зашли через Telegram</p>;
-  if (!hasSubscription) return <p>❌ У вас нет подписки</p>;
+  if (loading) return <p>{t("loading", lang)}</p>;
+  if (!user) return <p>{t("not_logged_in", lang)}</p>;
+  if (!hasSubscription) return <NoSubscription />;
 
   return (
     <Router>
-      <Header isAdmin={isAdmin} />
+      <Header isAdmin={isAdmin} lang={lang} />
       <Routes>
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/" element={<Products />} />
-        <Route path="/products/:id" element={<ProductDetails isAdmin={isAdmin} />} />
-        {isAdmin && <Route path="/admin" element={<AdminPanel />} />}
-        {isAdmin && <Route path="/admin/add" element={<AddProduct />} />}
-        {isAdmin && <Route path="/admin/:id" element={<AdminEditor />} />}
+        <Route path="/faq" element={<FAQ lang={lang} />} />
+        <Route path="/" element={<Products lang={lang} />} />
+        <Route path="/products/:id" element={<ProductDetails isAdmin={isAdmin} lang={lang} />} />
+        {isAdmin && <Route path="/admin" element={<AdminPanel lang={lang} />} />}
+        {isAdmin && <Route path="/admin/add" element={<AddProduct lang={lang} />} />}
+        {isAdmin && <Route path="/admin/:id" element={<AdminEditor lang={lang} />} />}
       </Routes>
-      <Footer />
+      <Footer lang={lang} />
     </Router>
   );
 }
