@@ -30,7 +30,7 @@ const useTelegramUser = () => {
       .then(data => {
         setHasSubscription(!!data.hasSubscription);
         setFreeUntil(data.free_until ? new Date(data.free_until) : null);
-        setLang(language);
+        setLang(data.lang || language || "ru");
       });
 
     // Проверка админа
