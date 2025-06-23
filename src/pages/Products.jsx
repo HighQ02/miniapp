@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import t from '../i18n';
+import './Products.css'; // создайте этот файл для кастомных стилей
 
 const API_URL = "https://check-bot.top/api";
-const ITEMS_PER_PAGE = 2;
+
+const getGridSettings = () => {
+  const width = window.innerWidth;
+  if (width < 700) return { cols: 2, max: 40 };
+  if (width < 1100) return { cols: 3, max: 60 };
+  return { cols: 4, max: 80 };
+};
 
 const Products = ({ lang }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterHot, setFilterHot] = useState(false);
   const [filterVideo, setFilterVideo] = useState(false);
+  const [searchId, setSearchId] = useState("");
+  const [grid, setGrid] = useState(getGridSettings());
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,10 +41,20 @@ const Products = ({ lang }) => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const onResize = () => setGrid(getGridSettings());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   let filtered = products;
+  if (searchId) filtered = filtered.filter(p => p.id.toString().includes(searchId));
   if (filterHot) filtered = filtered.filter(p => p.is_hot);
   if (filterVideo) filtered = filtered.filter(p => p.has_video);
 
+  filtered = filtered.slice(0, grid.max);
+
+  const ITEMS_PER_PAGE = grid.cols * 2;
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
@@ -43,24 +62,57 @@ const Products = ({ lang }) => {
     navigate(`/products/${id}`, { state: { fromPage: page } });
   };
 
+  // Telegram-style toggle button
+  const ToggleBtn = ({ checked, onChange, icon, label }) => (
+    <label className="tg-toggle">
+      <input type="checkbox" checked={checked} onChange={onChange} />
+      <span className="tg-toggle-slider">{icon}</span>
+      <span className="tg-toggle-label">{label}</span>
+    </label>
+  );
+
   if (loading) return <div className="products-loading">{t("products_loading", lang)}</div>;
   if (filtered.length === 0) return <div className="products-empty">{t("products_not_found", lang)}</div>;
 
   return (
-    <div>
+    <div className="products-root">
       <div className="products-filters">
-        <label>
-          <input type="checkbox" checked={filterHot} onChange={e => setFilterHot(e.target.checked)} /> {t("hot", lang)}
-        </label>
-        <label>
-          <input type="checkbox" checked={filterVideo} onChange={e => setFilterVideo(e.target.checked)} /> {t("video", lang)}
-        </label>
+        <input
+          className="products-search"
+          type="text"
+          placeholder={t("search_by_id", lang)}
+          value={searchId}
+          onChange={e => setSearchId(e.target.value)}
+        />
+        <ToggleBtn
+          checked={filterHot}
+          onChange={e => setFilterHot(e.target.checked)}
+          icon={<span role="img" aria-label="hot">🔥</span>}
+          label={t("hot", lang)}
+        />
+        <ToggleBtn
+          checked={filterVideo}
+          onChange={e => setFilterVideo(e.target.checked)}
+          icon={<span role="img" aria-label="video">🎥</span>}
+          label={t("video", lang)}
+        />
       </div>
-      <div className="products-grid">
+      <div
+        className="products-grid"
+        style={{
+          gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,
+        }}
+      >
         {paged.map((p, idx) => (
-          <div key={p.id} className="product-card" onClick={() => handleCardClick(p.id)}>
+          <div key={p.id} className="product-card product-card-vertical" onClick={() => handleCardClick(p.id)}>
             <span className="product-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
-            <img src={p.thumbnail} alt={t("product_alt", lang) + ` ${p.id}`} draggable={false} onContextMenu={e => e.preventDefault()} className="product-img" />
+            <img
+              src={p.thumbnail}
+              alt={t("product_alt", lang) + ` ${p.id}`}
+              draggable={false}
+              onContextMenu={e => e.preventDefault()}
+              className="product-img product-img-vertical"
+            />
             <div className="product-card-icons">
               {p.has_video && <span className="product-card-icon"> 🎥 </span>}
               {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}
@@ -70,16 +122,20 @@ const Products = ({ lang }) => {
       </div>
       <div className="products-pagination">
         <button
-          className="products-pagination-btn"
+          className="products-pagination-btn tg-arrow"
           onClick={() => navigate(`?page=${Math.max(1, page - 1)}`)}
           disabled={page === 1}
-        >←</button>
+        >
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M20 8l-8 8 8 8" stroke="#786ac8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
         <span className="products-pagination-info">{page} / {totalPages}</span>
         <button
-          className="products-pagination-btn"
+          className="products-pagination-btn tg-arrow"
           onClick={() => navigate(`?page=${Math.min(totalPages, page + 1)}`)}
           disabled={page === totalPages}
-        >→</button>
+        >
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M12 8l8 8-8 8" stroke="#786ac8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
       </div>
     </div>
   );

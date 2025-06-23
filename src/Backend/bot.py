@@ -10,6 +10,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup, LabeledPrice, ContentType
 from config import BOT_TOKEN
 from mydb import Database
+from calendar import month_name
 from datetime import datetime, timedelta
 
 # Ставим русскую локаль для красивых дат
@@ -124,6 +125,26 @@ def t(key, lang="ru", **kwargs):
         "one_time_used_en": "⛔ You have already used 5-minute access. Can't use again.",
         "one_time_success_ru": "✅ Доступ на 5 минут активирован. Успей воспользоваться сайтом!",
         "one_time_success_en": "✅ 5-minute access activated. Hurry up and use the site!",
+        "admin_panel_ru": (
+            " 🛡️ <b>Админ панель</b>\n\n"
+            " 💸 Возврат средств — оформить возврат\n"
+            " /broadcast — отправить сообщение всем пользователям\n"
+            " /grantaccess user_id срок — выдать подписку\n"
+            " /remove_sub user_id — забрать подписку\n"
+            " /giveadmin user_id — выдать админку\n"
+            " /remove_admin user_id — забрать админку\n"
+            " /users — статистика\n"
+        ),
+        "admin_panel_en": (
+            " 🛡️ <b>Admin panel</b>\n\n"
+            " 💸 Refund — process a refund\n"
+            " /broadcast — send a message to all users\n"
+            " /grantaccess user_id period — grant a subscription\n"
+            " /remove_sub user_id — remove a subscription\n"
+            " /giveadmin user_id — grant admin rights\n"
+            " /remove_admin user_id — remove admin rights\n"
+            " /users — statistics\n"
+        ),
         "users_stats_ru": "👥 Всего зарегистрировано пользователей: <b>{total}</b>",
         "users_stats_en": "👥 Total registered users: <b>{total}</b>",
         "active_subs_ru": "📊 Активных подписок: <b>{active}</b>",
@@ -203,7 +224,12 @@ async def captcha_check(message: types.Message, state: FSMContext):
     if message.text.strip() == correct:
         await db.create_user(message.from_user.id)
         await state.clear()
-        await message.answer("✅ Капча пройдена! Теперь выберите язык.")
+        lang_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru")],
+            [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en")]
+        ])
+        await message.answer("✅ Капча пройдена!\n\n🌐 Выберите язык:\n🌐 Choose your language:", reply_markup=lang_kb)
+        await state.set_state(LanguageState.choosing)
     else:
         await message.answer("❌ Неверно! Попробуйте ещё раз.")
 
@@ -237,23 +263,13 @@ async def admin_panel(message: types.Message):
     user = await db.get_user(message.from_user.id)
     lang = user["language_code"] if user and user.get("language_code") else "ru"
     if not user or not user.get('is_admin'):
-        await message.answer("⛔ Нет доступа.")
+        await message.answer("⛔ Нет доступа." if lang == "ru" else "⛔ No access.")
         return
 
-    text = (
-        " 🛡️ <b>Админ панель</b>\n\n"
-        " 💸 Возврат средств — оформить возврат\n"
-        " /broadcast — отправить сообщение всем пользователям\n"
-        " /grantaccess user_id срок — выдать подписку\n"
-        " /remove_sub user_id — забрать подписку\n"
-        " /giveadmin user_id — выдать админку\n"
-        " /remove_admin user_id — забрать админку\n"
-        " /users — статистика\n"
-    )
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="💸 Возврат средств", callback_data="admin:refund")]
+        [InlineKeyboardButton(text="💸 Возврат средств" if lang == "ru" else "💸 Refund", callback_data="admin:refund")]
     ])
-    await message.answer(text, reply_markup=kb, parse_mode="HTML")
+    await message.answer(t("admin_panel", lang=lang), reply_markup=kb, parse_mode="HTML")
 
 
 @dp.message(Command("giveadmin"))
@@ -282,18 +298,18 @@ async def remove_admin(message: types.Message):
     user = await db.get_user(message.from_user.id)
     lang = user["language_code"] if user and user.get("language_code") else "ru"
     if not user or not user.get('is_admin'):
-        await message.answer("⛔ Нет доступа.")
+        await message.answer("⛔ Нет доступа." if lang == "ru" else "⛔ No access.")
         return
     parts = message.text.split()
     if len(parts) != 2:
-        await message.answer("Использование: /remove_admin user_id")
+        await message.answer("Использование: /remove_admin user_id" if lang == "ru" else "Usage: /remove_admin user_id")
         return
     try:
         target_id = int(parts[1])
         await db.remove_admin(target_id)
-        await message.answer(f"✅ Админка пользователя {target_id} удалена.")
+        await message.answer(f"✅ Админка пользователя {target_id} удалена." if lang == "ru" else f"✅ Admin rights for user {target_id} removed.")
     except Exception as e:
-        await message.answer(f"Ошибка: {e}")
+        await message.answer(f"Ошибка: {e}" if lang == "ru" else f"Error: {e}")
 
 
 @dp.message(lambda m: m.text in ["👤 Профиль", "👤 Profile"])
@@ -306,10 +322,14 @@ async def profile(message: types.Message):
         await message.answer(t("profile_not_found", lang=lang))
         return
 
-    is_admin = "✅ Да" if lang == "ru" else ("✅ Yes" if user.get("is_admin") else "❌ No")
+    is_admin = ("✅ Да" if user.get("is_admin") else "❌ Нет") if lang == "ru" else ("✅ Yes" if user.get("is_admin") else "❌ No")
     sub_end = user.get("subscription")
     if sub_end and sub_end > datetime.utcnow():
-        sub_status = f"✅ До {sub_end.strftime('%d %B %Y')}" if lang == "ru" else f"✅ until {sub_end.strftime('%d %B %Y')}"
+        if lang == "ru":
+            sub_status = f"✅ До {sub_end.strftime('%d %B %Y')}"
+        else:
+            month = month_name[sub_end.month]
+            sub_status = f"✅ until {sub_end.day} {month} {sub_end.year}"
     else:
         sub_status = "❌ Нет подписки" if lang == "ru" else "❌ No subscription"
 
@@ -359,19 +379,19 @@ async def remove_subscription(message: types.Message):
     user = await db.get_user(message.from_user.id)
     lang = user["language_code"] if user and user.get("language_code") else "ru"
     if not user or not user.get('is_admin'):
-        await message.answer("⛔ Нет доступа.")
+        await message.answer("⛔ Нет доступа." if lang == "ru" else "⛔ No access.")
         return
     
     parts = message.text.split()
     if len(parts) != 2:
-        await message.answer("Использование: /remove_sub user_id")
+        await message.answer("Использование: /remove_sub user_id" if lang == "ru" else "Usage: /remove_sub user_id")
         return
     try:
         target_id = int(parts[1])
         await db.remove_subscription(target_id)
-        await message.answer(f"✅ Подписка пользователя {target_id} удалена.")
+        await message.answer(f"✅ Подписка пользователя {target_id} удалена." if lang == "ru" else f"✅ Subscription for user {target_id} removed.")
     except Exception as e:
-        await message.answer(f"Ошибка: {e}")
+        await message.answer(f"Ошибка: {e}" if lang == "ru" else f"Error: {e}")
 
 
 @dp.message(lambda m: m.text in ["🔗 Получить доступ", "🔗 Get access"])
@@ -697,20 +717,23 @@ async def send_broadcast(text, photo_id=None):
 @dp.message(Command("broadcast"))
 async def start_broadcast(message: types.Message, state: FSMContext):
     user = await db.get_user(message.from_user.id)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     if not user or not user.get('is_admin'):
-        await message.answer("⛔ Нет доступа.")
+        await message.answer("⛔ Нет доступа." if lang == "ru" else "⛔ No access.")
         return
-    await message.answer("Введите текст рассылки:")
+    await message.answer("Введите текст рассылки:" if lang == "ru" else "Enter the broadcast text:")
     await state.set_state(BroadcastState.waiting_for_text)
 
 @dp.message(BroadcastState.waiting_for_text)
 async def broadcast_text(message: types.Message, state: FSMContext):
+    user = await db.get_user(message.from_user.id)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
     await state.update_data(text=message.text)
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Добавить фото", callback_data="broadcast:add_photo")],
-        [InlineKeyboardButton(text="Без фото, отправить", callback_data="broadcast:send_no_photo")]
+        [InlineKeyboardButton(text="Добавить фото" if lang == "ru" else "Add photo", callback_data="broadcast:add_photo")],
+        [InlineKeyboardButton(text="Без фото, отправить" if lang == "ru" else "Send without photo", callback_data="broadcast:send_no_photo")]
     ])
-    await message.answer("Хотите добавить фото к рассылке?", reply_markup=kb)
+    await message.answer("Хотите добавить фото к рассылке?" if lang == "ru" else "Do you want to add a photo to the broadcast?", reply_markup=kb)
     await state.set_state(BroadcastState.confirm)
 
 @dp.callback_query(lambda c: c.data == "broadcast:add_photo")
