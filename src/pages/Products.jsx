@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import t from '../i18n';
-import './Products.css'; // создайте этот файл для кастомных стилей
 
 const API_URL = "https://check-bot.top/api";
 
