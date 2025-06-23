@@ -116,10 +116,11 @@ const AdminEditor = () => {
       )}
 
       <button
-        className="admin-editor-save-btn admin-editor-back-btn"
+        className="admin-editor-back-btn"
         onClick={() => navigate(`/admin?page=${fromPage}`)}
       >
-        ← {t("back", lang)}
+        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="#786ac8" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        {t("back", lang)}
       </button>
 
       <h2 className="admin-editor-header">{t("edit_product", lang)} №{product.id}</h2>
@@ -147,10 +148,10 @@ const AdminEditor = () => {
           disabled={loading}
           className="admin-editor-save-btn"
         >
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
           {t("save", lang)}
         </button>
       </div>
-
       {/* Фото */}
       {images.length > 0 && (
         <>
@@ -166,10 +167,8 @@ const AdminEditor = () => {
                     onContextMenu={e => e.preventDefault()}
                     draggable={false}
                     className="admin-editor-photo-img"
+                    style={{ aspectRatio: "3/4" }}
                   />
-                  <span className="admin-editor-photo-num">
-                    {(photoPage - 1) * PHOTOS_PER_PAGE + idx + 1}
-                  </span>
                   <button
                     onClick={() => handleDeleteImage(relativeImg)}
                     disabled={loading}
@@ -202,11 +201,10 @@ const AdminEditor = () => {
           )}
         </>
       )}
-
       {/* Видео */}
       {product.videos.length > 0 && (
         <>
-          <h3 style={{ marginBottom: 12 }}>{t("video", lang)}</h3>
+          <h3 className="admin-editor-video-title">{t("video", lang)}</h3>
           <div className="admin-editor-video-list">
             {product.videos.map((video, idx) => {
               const relativeVideo = video.split('/').slice(-2).join('/');
@@ -233,12 +231,12 @@ const AdminEditor = () => {
           </div>
         </>
       )}
-
       <button
         className="admin-editor-delete-product-btn"
         onClick={handleDeleteProduct}
         disabled={loading}
       >
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         {t("delete_product", lang)}
       </button>
     </div>

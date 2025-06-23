@@ -47,7 +47,7 @@ const AdminPanel = ({ lang: propLang }) => {
 
   filtered = filtered.slice(0, grid.max);
 
-  const ITEMS_PER_PAGE = grid.cols * 2;
+  const ITEMS_PER_PAGE = grid.cols * 20;
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
@@ -119,7 +119,7 @@ const AdminPanel = ({ lang: propLang }) => {
           onClick={() => navigate(`?page=${Math.max(1, page - 1)}`)}
           disabled={page === 1}
         >
-          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M20 8l-8 8 8 8" stroke="#786ac8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginRight: 3 }}><path d="M20 8l-8 8 8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
         <span className="admin-pagination-info">{page} / {totalPages}</span>
         <button
@@ -127,7 +127,7 @@ const AdminPanel = ({ lang: propLang }) => {
           onClick={() => navigate(`?page=${Math.min(totalPages, page + 1)}`)}
           disabled={page === totalPages}
         >
-          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M12 8l8 8-8 8" stroke="#786ac8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginLeft: 3 }}><path d="M12 8l8 8-8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
       </div>
     </div>

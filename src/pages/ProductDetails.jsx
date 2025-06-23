@@ -88,11 +88,11 @@ const ProductDetails = ({ lang: propLang }) => {
   return (
     <div className="product-details-container">
       <button
-        className="products-pagination-btn"
+        className="product-details-back-btn"
         onClick={() => navigate(`/?page=${fromPage}`)}
-        style={{ marginBottom: 18 }}
       >
-        ← {t("back", lang)}
+        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="#786ac8" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        {t("back", lang)}
       </button>
       <div className="product-details-card">
         <h2>{t("product_number", lang)} {product.id}</h2>
@@ -103,76 +103,28 @@ const ProductDetails = ({ lang: propLang }) => {
         {/* Сетка фото */}
         {images.length > 0 && (
           <div className="product-details-image-grid">
-            {(() => {
-              let cells = [];
-              if (images.length <= 9) {
-                for (let i = 0; i < 9; i++) {
-                  if (i < images.length) {
-                    cells.push(
-                      <div
-                        key={i}
-                        className="product-details-image-cell"
-                        onClick={() => openFullscreen(i)}
-                      >
-                        <img
-                          src={images[i]}
-                          alt={t("photo", lang) + ` ${i + 1}`}
-                          onContextMenu={e => e.preventDefault()}
-                          className="product-details-image"
-                          draggable={false}
-                        />
-                      </div>
-                    );
-                  } else {
-                    cells.push(
-                      <div key={`empty-${i}`} className="product-details-image-cell product-details-image-empty" />
-                    );
-                  }
-                }
-              } else {
-                for (let i = 0; i < 8; i++) {
-                  cells.push(
-                    <div
-                      key={i}
-                      className="product-details-image-cell"
-                      onClick={() => openFullscreen(i)}
-                    >
-                      <img
-                        src={images[i]}
-                        alt={t("photo", lang) + ` ${i + 1}`}
-                        onContextMenu={e => e.preventDefault()}
-                        className="product-details-image"
-                        draggable={false}
-                      />
-                    </div>
-                  );
-                }
-                // 9-я — "Далее..."
-                cells.push(
-                  <div
-                    key="more"
-                    className="product-details-image-cell product-details-image-more"
-                    onClick={() => openFullscreen(8)}
-                  >
-                    <img
-                      src={images[8]}
-                      alt={t("photo", lang) + " 9"}
-                      onContextMenu={e => e.preventDefault()}
-                      className="product-details-image product-details-image-blur"
-                      draggable={false}
-                    />
-                    <span className="product-details-image-more-text">{t("more", lang)}</span>
-                  </div>
-                );
-              }
-              return cells;
-            })()}
+            {images.map((img, i) => (
+              <div
+                key={i}
+                className="product-details-image-cell"
+                onClick={() => openFullscreen(i)}
+                style={{ aspectRatio: "3/4" }}
+              >
+                <img
+                  src={img}
+                  alt={t("photo", lang) + ` ${i + 1}`}
+                  onContextMenu={e => e.preventDefault()}
+                  className="product-details-image"
+                  draggable={false}
+                />
+              </div>
+            ))}
           </div>
         )}
         {/* Видео */}
         {product.videos && product.videos.length > 0 && (
           <div>
-            <h3>{t("video", lang)}</h3>
+            <h3 className="product-details-video-title">{t("video", lang)}</h3>
             <div className="product-details-video-list">
               {product.videos.map((video, index) => (
                 <video
@@ -183,15 +135,6 @@ const ProductDetails = ({ lang: propLang }) => {
                   disablePictureInPicture
                   onContextMenu={e => e.preventDefault()}
                   className="product-details-video"
-                  onClick={e => {
-                    if (e.target === e.currentTarget) {
-                      if (e.currentTarget.paused) {
-                        e.currentTarget.play();
-                      } else {
-                        e.currentTarget.pause();
-                      }
-                    }
-                  }}
                 />
               ))}
             </div>
@@ -209,7 +152,6 @@ const ProductDetails = ({ lang: propLang }) => {
             draggable={false}
             onClick={e => e.stopPropagation()}
           />
-          {/* Стрелки для ПК */}
           {fullscreenIdx > 0 && (
             <button
               className="fullscreen-modal-arrow fullscreen-modal-arrow-left"
@@ -219,7 +161,7 @@ const ProductDetails = ({ lang: propLang }) => {
               }}
               aria-label={t("back", lang)}
             >
-              &#8592;
+              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#786ac8"/><path d="M15 18l-6-6 6-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           )}
           {fullscreenIdx < images.length - 1 && (
@@ -231,7 +173,7 @@ const ProductDetails = ({ lang: propLang }) => {
               }}
               aria-label={t("forward", lang)}
             >
-              &#8594;
+              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#786ac8"/><path d="M9 6l6 6-6 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           )}
           <div className="fullscreen-modal-info">

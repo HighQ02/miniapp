@@ -87,55 +87,59 @@ const Products = ({ lang }) => {
           checked={filterHot}
           onChange={e => setFilterHot(e.target.checked)}
           icon={<span role="img" aria-label="hot">🔥</span>}
-          label={t("hot", lang)}
         />
         <ToggleBtn
           checked={filterVideo}
           onChange={e => setFilterVideo(e.target.checked)}
           icon={<span role="img" aria-label="video">🎥</span>}
-          label={t("video", lang)}
         />
       </div>
-      <div
-        className="products-grid"
-        style={{
-          gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,
-        }}
-      >
-        {paged.map((p, idx) => (
-          <div key={p.id} className="product-card product-card-vertical" onClick={() => handleCardClick(p.id)}>
-            <span className="product-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
-            <img
-              src={p.thumbnail}
-              alt={t("product_alt", lang) + ` ${p.id}`}
-              draggable={false}
-              onContextMenu={e => e.preventDefault()}
-              className="product-img product-img-vertical"
-            />
-            <div className="product-card-icons">
-              {p.has_video && <span className="product-card-icon"> 🎥 </span>}
-              {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}
-            </div>
+      {filtered.length === 0 ? (
+        <div className="products-empty">{t("products_not_found", lang)}</div>
+      ) : (
+        <>
+          <div
+            className="products-grid"
+            style={{
+              gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,
+            }}
+          >
+            {paged.map((p, idx) => (
+              <div key={p.id} className="product-card product-card-vertical" onClick={() => handleCardClick(p.id)}>
+                <span className="product-card-number">{p.id}</span>
+                <img
+                  src={p.thumbnail}
+                  alt={t("product_alt", lang) + ` ${p.id}`}
+                  draggable={false}
+                  onContextMenu={e => e.preventDefault()}
+                  className="product-img product-img-vertical"
+                />
+                <div className="product-card-icons">
+                  {p.has_video && <span className="product-card-icon"> 🎥 </span>}
+                  {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="products-pagination">
-        <button
-          className="products-pagination-btn tg-arrow"
-          onClick={() => navigate(`?page=${Math.max(1, page - 1)}`)}
-          disabled={page === 1}
-        >
-          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M20 8l-8 8 8 8" stroke="#786ac8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <span className="products-pagination-info">{page} / {totalPages}</span>
-        <button
-          className="products-pagination-btn tg-arrow"
-          onClick={() => navigate(`?page=${Math.min(totalPages, page + 1)}`)}
-          disabled={page === totalPages}
-        >
-          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M12 8l8 8-8 8" stroke="#786ac8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-      </div>
+          <div className="products-pagination">
+            <button
+              className="products-pagination-btn tg-arrow"
+              onClick={() => navigate(`?page=${Math.max(1, page - 1)}`)}
+              disabled={page === 1}
+            >
+              <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginRight: 3 }}><path d="M20 8l-8 8 8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+            <span className="products-pagination-info">{page} / {totalPages}</span>
+            <button
+              className="products-pagination-btn tg-arrow"
+              onClick={() => navigate(`?page=${Math.min(totalPages, page + 1)}`)}
+              disabled={page === totalPages}
+            >
+              <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginLeft: 3 }}><path d="M12 8l8 8-8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
