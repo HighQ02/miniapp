@@ -71,7 +71,6 @@ const Products = ({ lang }) => {
   );
 
   if (loading) return <div className="products-loading">{t("products_loading", lang)}</div>;
-  if (filtered.length === 0) return <div className="products-empty">{t("products_not_found", lang)}</div>;
 
   return (
     <div className="products-root">

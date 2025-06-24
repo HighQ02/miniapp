@@ -80,10 +80,9 @@ const ProductDetails = ({ lang: propLang }) => {
   if (!product) return <div className="products-loading">{t("products_loading", lang)}</div>;
 
   const images = product.images || [];
-  const gridImages = images.slice(0, 8);
-
-  const openFullscreen = (idx) => setFullscreenIdx(idx);
-  const closeFullscreen = () => setFullscreenIdx(null);
+  const maxImages = 9;
+  const gridImages = images.slice(0, maxImages);
+  const showMore = images.length > maxImages;
 
   return (
     <div className="product-details-container">
@@ -95,36 +94,62 @@ const ProductDetails = ({ lang: propLang }) => {
         {t("back", lang)}
       </button>
       <div className="product-details-card">
-        <h2>{t("product_number", lang)} {product.id}</h2>
-        <div className="product-details-icons">
-          {product.is_hot && <span className="icon-hot">🔥</span>}
-          {product.has_video && <span className="icon-video">🎥</span>}
+        <div className="product-details-header">
+          <span className="product-details-id">
+            {product.id}
+            {product.is_hot && <span className="product-details-icon">🔥</span>}
+            {product.has_video && <span className="product-details-icon">🎥</span>}
+          </span>
         </div>
-        {/* Сетка фото */}
-        {images.length > 0 && (
-          <div className="product-details-image-grid">
-            {images.map((img, i) => (
-              <div
-                key={i}
-                className="product-details-image-cell"
-                onClick={() => openFullscreen(i)}
-                style={{ aspectRatio: "3/4" }}
-              >
-                <img
-                  src={img}
-                  alt={t("photo", lang) + ` ${i + 1}`}
-                  onContextMenu={e => e.preventDefault()}
-                  className="product-details-image"
-                  draggable={false}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-        {/* Видео */}
+        <div className="product-details-photos-title">{t("photos", lang)}</div>
+        <div className="product-details-image-grid">
+          {Array.from({ length: maxImages }).map((_, i) => {
+            if (i < gridImages.length) {
+              if (showMore && i === maxImages - 1) {
+                return (
+                  <div
+                    key={i}
+                    className="product-details-image-cell product-details-image-more"
+                    onClick={() => setFullscreenIdx(i)}
+                    style={{ aspectRatio: "3/4" }}
+                  >
+                    <img
+                      src={gridImages[i]}
+                      alt={t("photo", lang) + ` ${i + 1}`}
+                      className="product-details-image product-details-image-blur"
+                      draggable={false}
+                      onContextMenu={e => e.preventDefault()}
+                    />
+                    <span className="product-details-image-more-text">
+                      {t("more", lang)}
+                    </span>
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={i}
+                  className="product-details-image-cell"
+                  onClick={() => setFullscreenIdx(i)}
+                  style={{ aspectRatio: "3/4" }}
+                >
+                  <img
+                    src={gridImages[i]}
+                    alt={t("photo", lang) + ` ${i + 1}`}
+                    className="product-details-image"
+                    draggable={false}
+                    onContextMenu={e => e.preventDefault()}
+                  />
+                </div>
+              );
+            }
+            // Пустые ячейки не отображаем
+            return null;
+          })}
+        </div>
         {product.videos && product.videos.length > 0 && (
           <div>
-            <h3 className="product-details-video-title">{t("video", lang)}</h3>
+            <div className="product-details-video-title">{t("video", lang)}</div>
             <div className="product-details-video-list">
               {product.videos.map((video, index) => (
                 <video
@@ -141,7 +166,7 @@ const ProductDetails = ({ lang: propLang }) => {
           </div>
         )}
       </div>
-      {/* Полноэкранный просмотр */}
+      {/* Полноэкранный просмотр — оставить как было */}
       {fullscreenIdx !== null && (
         <div className="fullscreen-modal" onClick={closeFullscreen}>
           <img
