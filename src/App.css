@@ -390,15 +390,21 @@ h1, h2, h3 {
 
 .product-details-image-grid {
   display: grid;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
   margin: 0 18px 24px 18px;
+  max-width: 330px;
 }
 
 .product-details-image-cell {
+  width: 100px;
+  height: 133px; /* 3:4 */
   aspect-ratio: 3/4;
   background: #222;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   display: flex;

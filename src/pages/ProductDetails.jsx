@@ -107,7 +107,7 @@ const ProductDetails = ({ lang: propLang }) => {
           <>
             <div className="product-details-photos-title">{t("photos", lang)}</div>
             <div className="product-details-image-grid">
-              {Array.from({ length: Math.min(maxImages, images.length) }).map((_, i) => {
+              {gridImages.map((img, i) => {
                 if (showMore && i === maxImages - 1) {
                   return (
                     <div
@@ -117,7 +117,7 @@ const ProductDetails = ({ lang: propLang }) => {
                       style={{ aspectRatio: "3/4" }}
                     >
                       <img
-                        src={gridImages[i]}
+                        src={img}
                         alt={t("photo", lang) + ` ${i + 1}`}
                         className="product-details-image product-details-image-blur"
                         draggable={false}
@@ -137,7 +137,7 @@ const ProductDetails = ({ lang: propLang }) => {
                     style={{ aspectRatio: "3/4" }}
                   >
                     <img
-                      src={gridImages[i]}
+                      src={img}
                       alt={t("photo", lang) + ` ${i + 1}`}
                       className="product-details-image"
                       draggable={false}
@@ -146,10 +146,6 @@ const ProductDetails = ({ lang: propLang }) => {
                   </div>
                 );
               })}
-              {/* Пустые ячейки для выравнивания сетки */}
-              {Array.from({ length: maxImages - Math.min(maxImages, images.length) }).map((_, i) => (
-                <div key={`empty-${i}`} className="product-details-image-cell product-details-image-empty" />
-              ))}
             </div>
           </>
         )}
