@@ -24,6 +24,7 @@ const ProductDetails = ({ lang: propLang }) => {
       .catch(console.error);
   }, [id]);
 
+  // Клавиши для полноэкранного просмотра
   const handleKeyDown = useCallback(
     (e) => {
       if (fullscreenIdx === null) return;
@@ -54,6 +55,7 @@ const ProductDetails = ({ lang: propLang }) => {
     };
   }, [fullscreenIdx, handleKeyDown]);
 
+  // Свайпы для полноэкранного просмотра
   useEffect(() => {
     if (fullscreenIdx === null) return;
     let startX = null;
@@ -90,7 +92,7 @@ const ProductDetails = ({ lang: propLang }) => {
         className="product-details-back-btn"
         onClick={() => navigate(`/?page=${fromPage}`)}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="#786ac8" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         {t("back", lang)}
       </button>
       <div className="product-details-card">
@@ -101,54 +103,58 @@ const ProductDetails = ({ lang: propLang }) => {
             {product.has_video && <span className="product-details-icon">🎥</span>}
           </span>
         </div>
-        <div className="product-details-photos-title">{t("photos", lang)}</div>
-        <div className="product-details-image-grid">
-          {Array.from({ length: maxImages }).map((_, i) => {
-            if (i < gridImages.length) {
-              if (showMore && i === maxImages - 1) {
+        {images.length > 0 && (
+          <>
+            <div className="product-details-photos-title">{t("photos", lang)}</div>
+            <div className="product-details-image-grid">
+              {Array.from({ length: Math.min(maxImages, images.length) }).map((_, i) => {
+                if (showMore && i === maxImages - 1) {
+                  return (
+                    <div
+                      key={i}
+                      className="product-details-image-cell product-details-image-more"
+                      onClick={() => setFullscreenIdx(i)}
+                      style={{ aspectRatio: "3/4" }}
+                    >
+                      <img
+                        src={gridImages[i]}
+                        alt={t("photo", lang) + ` ${i + 1}`}
+                        className="product-details-image product-details-image-blur"
+                        draggable={false}
+                        onContextMenu={e => e.preventDefault()}
+                      />
+                      <span className="product-details-image-more-text">
+                        {t("more", lang)}
+                      </span>
+                    </div>
+                  );
+                }
                 return (
                   <div
                     key={i}
-                    className="product-details-image-cell product-details-image-more"
+                    className="product-details-image-cell"
                     onClick={() => setFullscreenIdx(i)}
                     style={{ aspectRatio: "3/4" }}
                   >
                     <img
                       src={gridImages[i]}
                       alt={t("photo", lang) + ` ${i + 1}`}
-                      className="product-details-image product-details-image-blur"
+                      className="product-details-image"
                       draggable={false}
                       onContextMenu={e => e.preventDefault()}
                     />
-                    <span className="product-details-image-more-text">
-                      {t("more", lang)}
-                    </span>
                   </div>
                 );
-              }
-              return (
-                <div
-                  key={i}
-                  className="product-details-image-cell"
-                  onClick={() => setFullscreenIdx(i)}
-                  style={{ aspectRatio: "3/4" }}
-                >
-                  <img
-                    src={gridImages[i]}
-                    alt={t("photo", lang) + ` ${i + 1}`}
-                    className="product-details-image"
-                    draggable={false}
-                    onContextMenu={e => e.preventDefault()}
-                  />
-                </div>
-              );
-            }
-            // Пустые ячейки не отображаем
-            return null;
-          })}
-        </div>
+              })}
+              {/* Пустые ячейки для выравнивания сетки */}
+              {Array.from({ length: maxImages - Math.min(maxImages, images.length) }).map((_, i) => (
+                <div key={`empty-${i}`} className="product-details-image-cell product-details-image-empty" />
+              ))}
+            </div>
+          </>
+        )}
         {product.videos && product.videos.length > 0 && (
-          <div>
+          <>
             <div className="product-details-video-title">{t("video", lang)}</div>
             <div className="product-details-video-list">
               {product.videos.map((video, index) => (
@@ -163,12 +169,11 @@ const ProductDetails = ({ lang: propLang }) => {
                 />
               ))}
             </div>
-          </div>
+          </>
         )}
       </div>
-      {/* Полноэкранный просмотр — оставить как было */}
       {fullscreenIdx !== null && (
-        <div className="fullscreen-modal" onClick={setFullscreenIdx(null)}>
+        <div className="fullscreen-modal" onClick={() => setFullscreenIdx(null)}>
           <img
             src={images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
@@ -205,7 +210,10 @@ const ProductDetails = ({ lang: propLang }) => {
             {fullscreenIdx + 1} / {images.length}
             <span
               className="fullscreen-modal-close"
-              onClick={setFullscreenIdx(null)}
+              onClick={e => {
+                e.stopPropagation();
+                setFullscreenIdx(null);
+              }}
               title={t("close", lang)}
             >
               &times;
