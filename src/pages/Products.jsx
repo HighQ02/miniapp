@@ -53,7 +53,7 @@ const Products = ({ lang }) => {
 
   filtered = filtered.slice(0, grid.max);
 
-  const ITEMS_PER_PAGE = grid.cols * 2;
+  const ITEMS_PER_PAGE = grid.cols * 20;
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 

@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import useTelegramUser from "../hooks/useTelegramUser";
 import t from "../i18n";
-import "./Admin.css";
 
 const API_URL = "https://check-bot.top/api";
-const PHOTOS_PER_PAGE = 2; // поменяете на 40 когда нужно
 
 const AdminEditor = () => {
   const { lang } = useTelegramUser();
@@ -17,7 +15,7 @@ const AdminEditor = () => {
   const [localIsHot, setLocalIsHot] = useState(false);
   const [localHasVideo, setLocalHasVideo] = useState(false);
   const [notif, setNotif] = useState("");
-  const [photoPage, setPhotoPage] = useState(1);
+  const [fullscreenIdx, setFullscreenIdx] = useState(null);
 
   const fromPage = location.state?.fromPage || 1;
 
@@ -102,143 +100,222 @@ const AdminEditor = () => {
     showNotif(t("saved", lang));
   };
 
-  // Пагинация фото
+  // Фотки для сетки 3x3
   const images = product?.images || [];
-  const totalPages = Math.ceil(images.length / PHOTOS_PER_PAGE);
-  const pagedImages = images.slice((photoPage - 1) * PHOTOS_PER_PAGE, photoPage * PHOTOS_PER_PAGE);
+  const maxImages = 9;
+  const gridImages = images.slice(0, maxImages);
+  const showMore = images.length > maxImages;
 
-  if (!product) return <div>{t("loading", lang)}</div>;
+  if (!product) return <div className="products-loading">{t("loading", lang)}</div>;
 
   return (
     <div className="admin-editor-container">
-      {notif && (
-        <div className="admin-editor-notif">{notif}</div>
-      )}
+      {notif && <div className="admin-editor-notif">{notif}</div>}
 
       <button
         className="admin-editor-back-btn"
         onClick={() => navigate(`/admin?page=${fromPage}`)}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="#786ac8" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         {t("back", lang)}
       </button>
 
-      <h2 className="admin-editor-header">{t("edit_product", lang)} №{product.id}</h2>
-      <div className="admin-editor-checkbox-group" style={{ marginBottom: 24 }}>
-        <label>
-          <input
-            type="checkbox"
-            checked={localIsHot}
-            onChange={() => setLocalIsHot(v => !v)}
+      <div className="admin-editor-card">
+        <div className="admin-editor-header">
+          <span className="admin-editor-id">
+            {product.id}
+            {product.is_hot && <span className="admin-editor-icon">🔥</span>}
+            {product.has_video && <span className="admin-editor-icon">🎥</span>}
+          </span>
+        </div>
+        <div className="admin-editor-checkbox-group" style={{ margin: "0 0 18px 18px" }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={localIsHot}
+              onChange={() => setLocalIsHot(v => !v)}
+              disabled={loading}
+            />{" "}
+            {t("hot", lang)}
+          </label>
+          <label style={{ marginLeft: 24 }}>
+            <input
+              type="checkbox"
+              checked={localHasVideo}
+              onChange={() => setLocalHasVideo(v => !v)}
+              disabled={loading}
+            />{" "}
+            {t("video", lang)}
+          </label>
+          <button
+            onClick={handleSave}
             disabled={loading}
-          />{" "}
-          {t("hot", lang)}
-        </label>
-        <label style={{ marginLeft: 24 }}>
-          <input
-            type="checkbox"
-            checked={localHasVideo}
-            onChange={() => setLocalHasVideo(v => !v)}
-            disabled={loading}
-          />{" "}
-          {t("video", lang)}
-        </label>
+            className="admin-editor-save-btn"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            {t("save", lang)}
+          </button>
+        </div>
+        {/* Фото */}
+        {images.length > 0 && (
+          <>
+            <div className="admin-editor-photos-title">{t("photos", lang)}</div>
+            <div className="admin-editor-photo-grid">
+              {gridImages.map((img, i) => {
+                if (showMore && i === maxImages - 1) {
+                  const relativeImg = img.split('/').slice(-2).join('/');
+                  return (
+                    <div
+                      key={i}
+                      className="admin-editor-photo-item admin-editor-photo-more"
+                      onClick={() => setFullscreenIdx(i)}
+                      style={{ aspectRatio: "3/4" }}
+                    >
+                      <img
+                        src={img}
+                        alt={t("photo", lang) + ` ${i + 1}`}
+                        className="admin-editor-photo-img admin-editor-photo-blur"
+                        draggable={false}
+                        onContextMenu={e => e.preventDefault()}
+                      />
+                      <span className="admin-editor-photo-more-text">
+                        {t("more", lang)}
+                      </span>
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleDeleteImage(relativeImg);
+                        }}
+                        disabled={loading}
+                        className="admin-editor-delete-btn"
+                        title={t("delete_photo", lang)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                }
+                const relativeImg = img.split('/').slice(-2).join('/');
+                return (
+                  <div
+                    key={i}
+                    className="admin-editor-photo-item"
+                    onClick={() => setFullscreenIdx(i)}
+                    style={{ aspectRatio: "3/4" }}
+                  >
+                    <img
+                      src={img}
+                      alt={t("photo", lang) + ` ${i + 1}`}
+                      className="admin-editor-photo-img"
+                      draggable={false}
+                      onContextMenu={e => e.preventDefault()}
+                    />
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteImage(relativeImg);
+                      }}
+                      disabled={loading}
+                      className="admin-editor-delete-btn"
+                      title={t("delete_photo", lang)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+        {/* Видео */}
+        {product.videos && product.videos.length > 0 && (
+          <>
+            <div className="admin-editor-video-title">{t("video", lang)}</div>
+            <div className="admin-editor-video-list">
+              {product.videos.map((video, idx) => {
+                const relativeVideo = video.split('/').slice(-2).join('/');
+                return (
+                  <div key={idx} className="admin-editor-video-item">
+                    <video
+                      src={video}
+                      controls
+                      onContextMenu={e => e.preventDefault()}
+                      draggable={false}
+                      className="admin-editor-video"
+                    />
+                    <button
+                      onClick={() => handleDeleteVideo(relativeVideo)}
+                      disabled={loading}
+                      className="admin-editor-delete-btn"
+                      title={t("delete_video", lang)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
         <button
-          onClick={handleSave}
+          className="admin-editor-delete-product-btn"
+          onClick={handleDeleteProduct}
           disabled={loading}
-          className="admin-editor-save-btn"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          {t("save", lang)}
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          {t("delete_product", lang)}
         </button>
       </div>
-      {/* Фото */}
-      {images.length > 0 && (
-        <>
-          <h3 style={{ marginBottom: 12 }}>{t("photo", lang)}</h3>
-          <div className="admin-editor-photo-grid">
-            {pagedImages.map((img, idx) => {
-              const relativeImg = img.split('/').slice(-2).join('/');
-              return (
-                <div key={idx} className="admin-editor-photo-item">
-                  <img
-                    src={img}
-                    alt={`${t("photo", lang)} ${idx}`}
-                    onContextMenu={e => e.preventDefault()}
-                    draggable={false}
-                    className="admin-editor-photo-img"
-                    style={{ aspectRatio: "3/4" }}
-                  />
-                  <button
-                    onClick={() => handleDeleteImage(relativeImg)}
-                    disabled={loading}
-                    className="admin-editor-delete-btn"
-                    title={t("delete_photo", lang)}
-                  >
-                    ×
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          {/* Пагинация */}
-          {totalPages > 1 && (
-            <div style={{ display: "flex", justifyContent: "center", gap: 12, margin: "18px 0" }}>
-              <button
-                onClick={() => setPhotoPage(p => Math.max(1, p - 1))}
-                disabled={photoPage === 1}
-                className="admin-editor-save-btn"
-                style={{ background: "#23232d", color: "#2aabee" }}
-              >←</button>
-              <span style={{ alignSelf: "center" }}>{photoPage} / {totalPages}</span>
-              <button
-                onClick={() => setPhotoPage(p => Math.min(totalPages, p + 1))}
-                disabled={photoPage === totalPages}
-                className="admin-editor-save-btn"
-                style={{ background: "#23232d", color: "#2aabee" }}
-              >→</button>
-            </div>
+      {/* Полноэкранный просмотр фото */}
+      {fullscreenIdx !== null && (
+        <div className="fullscreen-modal" onClick={() => setFullscreenIdx(null)}>
+          <img
+            src={images[fullscreenIdx]}
+            alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
+            onContextMenu={e => e.preventDefault()}
+            className="fullscreen-modal-img"
+            draggable={false}
+            onClick={e => e.stopPropagation()}
+          />
+          {fullscreenIdx > 0 && (
+            <button
+              className="fullscreen-modal-arrow fullscreen-modal-arrow-left"
+              onClick={e => {
+                e.stopPropagation();
+                setFullscreenIdx(fullscreenIdx - 1);
+              }}
+              aria-label={t("back", lang)}
+            >
+              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#fff"/><path d="M15 18l-6-6 6-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
           )}
-        </>
-      )}
-      {/* Видео */}
-      {product.videos.length > 0 && (
-        <>
-          <h3 className="admin-editor-video-title">{t("video", lang)}</h3>
-          <div className="admin-editor-video-list">
-            {product.videos.map((video, idx) => {
-              const relativeVideo = video.split('/').slice(-2).join('/');
-              return (
-                <div key={idx} className="admin-editor-video-item">
-                  <video
-                    src={video}
-                    controls
-                    onContextMenu={e => e.preventDefault()}
-                    draggable={false}
-                    className="admin-editor-video"
-                  />
-                  <button
-                    onClick={() => handleDeleteVideo(relativeVideo)}
-                    disabled={loading}
-                    className="admin-editor-delete-btn"
-                    title={t("delete_video", lang)}
-                  >
-                    ×
-                  </button>
-                </div>
-              );
-            })}
+          {fullscreenIdx < images.length - 1 && (
+            <button
+              className="fullscreen-modal-arrow fullscreen-modal-arrow-right"
+              onClick={e => {
+                e.stopPropagation();
+                setFullscreenIdx(fullscreenIdx + 1);
+              }}
+              aria-label={t("forward", lang)}
+            >
+              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#fff"/><path d="M9 6l6 6-6 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+          )}
+          <div className="fullscreen-modal-info">
+            {fullscreenIdx + 1} / {images.length}
+            <span
+              className="fullscreen-modal-close"
+              onClick={e => {
+                e.stopPropagation();
+                setFullscreenIdx(null);
+              }}
+              title={t("close", lang)}
+            >
+              &times;
+            </span>
           </div>
-        </>
+        </div>
       )}
-      <button
-        className="admin-editor-delete-product-btn"
-        onClick={handleDeleteProduct}
-        disabled={loading}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        {t("delete_product", lang)}
-      </button>
     </div>
   );
 };

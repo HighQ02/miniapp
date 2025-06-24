@@ -65,8 +65,7 @@ const AdminPanel = ({ lang: propLang }) => {
   );
 
   return (
-    <div className="admin-container">
-      <h2>{t("admin_panel", lang)}</h2>
+    <div className="admin-root">
       <div className="admin-filters">
         <input
           className="admin-search"
@@ -79,13 +78,11 @@ const AdminPanel = ({ lang: propLang }) => {
           checked={filterHot}
           onChange={e => setFilterHot(e.target.checked)}
           icon={<span role="img" aria-label="hot">🔥</span>}
-          label={t("hot", lang)}
         />
         <ToggleBtn
           checked={filterVideo}
           onChange={e => setFilterVideo(e.target.checked)}
           icon={<span role="img" aria-label="video">🎥</span>}
-          label={t("video", lang)}
         />
         <Link to="/admin/add" className="admin-add-btn" style={{marginLeft:16}}>➕ {t("add_product", lang)}</Link>
       </div>
@@ -97,7 +94,6 @@ const AdminPanel = ({ lang: propLang }) => {
       >
         {paged.map((p, idx) => (
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
-            <span className="admin-card-number">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</span>
             <img
               src={(p.thumbnail || (p.images && p.images[0]) || "")}
               alt={t("product_alt", lang) + ` ${p.id}`}
