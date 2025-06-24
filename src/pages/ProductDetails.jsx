@@ -168,7 +168,7 @@ const ProductDetails = ({ lang: propLang }) => {
       </div>
       {/* Полноэкранный просмотр — оставить как было */}
       {fullscreenIdx !== null && (
-        <div className="fullscreen-modal" onClick={closeFullscreen}>
+        <div className="fullscreen-modal" onClick={setFullscreenIdx(null)}>
           <img
             src={images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
@@ -205,7 +205,7 @@ const ProductDetails = ({ lang: propLang }) => {
             {fullscreenIdx + 1} / {images.length}
             <span
               className="fullscreen-modal-close"
-              onClick={closeFullscreen}
+              onClick={setFullscreenIdx(null)}
               title={t("close", lang)}
             >
               &times;
