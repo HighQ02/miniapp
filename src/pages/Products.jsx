@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Pagination from "../components/Pagination";
 import t from '../i18n';
 
 const API_URL = "https://check-bot.top/api";
