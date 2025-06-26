@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useTelegramUser from "../hooks/useTelegramUser";
+import Pagination from "../components/Pagination";
 import t from "../i18n";
 
 const API_URL = "https://check-bot.top/api";
@@ -84,7 +85,7 @@ const AdminPanel = ({ lang: propLang }) => {
           onChange={e => setFilterVideo(e.target.checked)}
           icon={<span role="img" aria-label="video">🎥</span>}
         />
-        <Link to="/admin/add" className="admin-add-btn" style={{marginLeft:16}}>➕ {t("add_product", lang)}</Link>
+        <Link to="/admin/add" className="admin-add-btn">➕ {t("add_product", lang)}</Link>
       </div>
       <div
         className="admin-grid"
@@ -94,6 +95,7 @@ const AdminPanel = ({ lang: propLang }) => {
       >
         {paged.map((p, idx) => (
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
+            <span className="admin-card-number">{p.id}</span>
             <img
               src={(p.thumbnail || (p.images && p.images[0]) || "")}
               alt={t("product_alt", lang) + ` ${p.id}`}
@@ -101,7 +103,6 @@ const AdminPanel = ({ lang: propLang }) => {
               draggable={false}
               className="admin-img admin-img-vertical"
             />
-            <span className="admin-id-center">{p.id}</span>
             <div className="admin-card-icons">
               {p.has_video && <span className="admin-card-icon"> 🎥 </span>}
               {p.is_hot && <span className="admin-card-icon admin-card-icon-hot"> 🔥 </span>}
@@ -109,23 +110,11 @@ const AdminPanel = ({ lang: propLang }) => {
           </div>
         ))}
       </div>
-      <div className="admin-pagination">
-        <button
-          className="admin-pagination-btn tg-arrow"
-          onClick={() => navigate(`?page=${Math.max(1, page - 1)}`)}
-          disabled={page === 1}
-        >
-          <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginRight: 3 }}><path d="M20 8l-8 8 8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <span className="admin-pagination-info">{page} / {totalPages}</span>
-        <button
-          className="admin-pagination-btn tg-arrow"
-          onClick={() => navigate(`?page=${Math.min(totalPages, page + 1)}`)}
-          disabled={page === totalPages}
-        >
-          <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginLeft: 3 }}><path d="M12 8l8 8-8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={p => navigate(`?page=${p}`)}
+      />
     </div>
   );
 };

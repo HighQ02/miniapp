@@ -72,7 +72,7 @@ def t(key, lang="ru", **kwargs):
             " 🔗 Получить доступ — получить доступ к сайту.\n"
             " 💳 Купить подписку — оформить подписку.\n"
             " 👤 Профиль — посмотреть свой профиль.\n"
-            " ⚙️ Настройки — смена языка.\n"
+            " 🎁 Реферальная система - поделитесь кодом и получите доступ.\n"
             " /ref — проверить свой код.\n"
             " /activate_ref — активировать подписку за 10 баллов.\n"
             "{one_time_block}"
@@ -84,7 +84,7 @@ def t(key, lang="ru", **kwargs):
             " 🔗 Get access — get access to the site.\n"
             " 💳 Buy subscription — get a subscription.\n"
             " 👤 Profile — see ur profile.\n"
-            " ⚙️ Settings — change language.\n"
+            " 🎁 Referral system - share the code and get access.\n"
             " /ref — check your code.\n"
             " /activate_ref — activate subscription for 10 points.\n"
             "{one_time_block}"
@@ -172,12 +172,10 @@ async def get_menu_keyboard(user_id: int):
         [KeyboardButton(text="💳 Купить подписку" if lang == "ru" else "💳 Buy subscription"),
          KeyboardButton(text="👤 Профиль" if lang == "ru" else "👤 Profile")],
         [KeyboardButton(text="🎓 Инструкция" if lang == "ru" else "🎓 Instruction"),
-         KeyboardButton(text="⚙️ Настройки" if lang == "ru" else "⚙️ Settings")],
+         KeyboardButton(text="🎁 Реферальная система" if lang == "ru" else "🎁 Referral system")],
     ]
-
     if is_admin:
         buttons.append([KeyboardButton(text="🛡️ Админ панель" if lang == "ru" else "🛡️ Admin panel")])
-
     menu_kb = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return menu_kb
 
@@ -232,30 +230,6 @@ async def captcha_check(message: types.Message, state: FSMContext):
         await state.set_state(LanguageState.choosing)
     else:
         await message.answer("❌ Неверно! Попробуйте ещё раз.")
-
-
-@dp.message(lambda m: m.text in ["⚙️ Настройки", "⚙️ Settings"])
-async def open_settings(message: types.Message):
-    user = await db.get_user(message.from_user.id)
-    lang = user["language_code"] if user and user.get("language_code") else "ru"
-    lang_kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru")],
-        [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en")]
-    ])
-    await message.answer(t("settings", lang=lang), reply_markup=lang_kb)
-
-@dp.callback_query(lambda c: c.data.startswith("lang:"))
-async def set_language(callback: types.CallbackQuery, state: FSMContext):
-    lang_code = callback.data.split(":")[1]
-    user_id = callback.from_user.id
-
-    await db.set_user_language(user_id, lang_code)
-    await db.set_user_initialized(user_id)
-    menu_kb = await get_menu_keyboard(user_id)
-
-    await callback.message.edit_text(t("lang_saved", lang=lang_code))
-    await callback.message.answer(t("start", lang=lang_code, name=callback.from_user.full_name), reply_markup=menu_kb)
-    await state.clear()
 
 
 @dp.message(lambda m: m.text in ["🛡️ Админ панель", "🛡️ Admin panel"])
@@ -334,9 +308,22 @@ async def profile(message: types.Message):
         sub_status = "❌ Нет подписки" if lang == "ru" else "❌ No subscription"
 
     language = "Русский" if lang == "ru" else "English"
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🌐 Сменить язык" if lang == "ru" else "🌐 Change language", callback_data="profile:change_lang")]
+    ])
     await message.answer(
-        t("profile", lang=lang, user_id=user_id, language=language, is_admin=is_admin, sub_status=sub_status)
+        t("profile", lang=lang, user_id=user_id, language=language, is_admin=is_admin, sub_status=sub_status),
+        reply_markup=kb
     )
+
+@dp.callback_query(lambda c: c.data == "profile:change_lang")
+async def profile_change_lang(callback: types.CallbackQuery):
+    lang_kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru")],
+        [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en")]
+    ])
+    await callback.message.edit_reply_markup(reply_markup=lang_kb)
+    await callback.answer()
 
 
 @dp.message(Command("grantaccess"))
@@ -415,6 +402,17 @@ async def buy_subscription(message: types.Message):
     user = await db.get_user(message.from_user.id)
     lang = user["language_code"] if user and user.get("language_code") else "ru"
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="⭐️ Звезды", callback_data="pay:stars")],
+        [InlineKeyboardButton(text="₿ Крипта", callback_data="pay:crypto")],
+        [InlineKeyboardButton(text="СБП", callback_data="pay:sbp")]
+    ])
+    await message.answer("Выберите способ оплаты:" if lang == "ru" else "Choose payment method:", reply_markup=keyboard)
+
+@dp.callback_query(lambda c: c.data == "pay:stars")
+async def pay_stars(callback: types.CallbackQuery):
+    user = await db.get_user(callback.from_user.id)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="1 неделя = 350 ⭐️" if lang == "ru" else "1 week = 350 ⭐️", callback_data="sub_7")],
         [InlineKeyboardButton(text="2 недели = 500 ⭐️" if lang == "ru" else "2 weeks = 500 ⭐️", callback_data="sub_14")],
         [InlineKeyboardButton(text="1 месяц = 1000 ⭐️" if lang == "ru" else "1 month = 1000 ⭐️", callback_data="sub_30")],
@@ -422,7 +420,17 @@ async def buy_subscription(message: types.Message):
         [InlineKeyboardButton(text="6 месяцев = 4500 ⭐️" if lang == "ru" else "6 month = 4500 ⭐️", callback_data="sub_180")],
         [InlineKeyboardButton(text="1 год = 8000 ⭐️" if lang == "ru" else "1 year = 8000 ⭐️", callback_data="sub_365")]
     ])
-    await message.answer(t("choose_period", lang=lang), reply_markup=keyboard)
+    await callback.message.answer(t("choose_period", lang=lang), reply_markup=keyboard)
+
+@dp.callback_query(lambda c: c.data == "pay:crypto")
+async def pay_crypto(callback: types.CallbackQuery):
+    await callback.message.edit_text("Оплата криптой в разработке." if callback.from_user.language_code == "ru" else "Crypto payment is under development.")
+    await callback.answer()
+
+@dp.callback_query(lambda c: c.data == "pay:sbp")
+async def pay_sbp(callback: types.CallbackQuery):
+    await callback.message.edit_text("Оплата через СБП в разработке." if callback.from_user.language_code == "ru" else "SBP payment is under development.")
+    await callback.answer()
 
 @dp.callback_query(lambda c: c.data and c.data.startswith('sub_'))
 async def process_subscription_choice(callback_query: types.CallbackQuery):
@@ -627,8 +635,8 @@ def generate_ref_code(length=8):
     chars = string.ascii_letters + string.digits
     return ''.join(random.choices(chars, k=length))
 
-@dp.message(Command("ref"))
-async def show_ref_info(message: types.Message):
+@dp.message(lambda m: m.text in ["🎁 Реферальная система", "🎁 Referral system"])
+async def referral_system(message: types.Message):
     user_id = message.from_user.id
     user = await db.get_user(user_id)
     lang = user["language_code"] if user and user.get("language_code") else "ru"
@@ -647,7 +655,6 @@ async def show_ref_info(message: types.Message):
         [InlineKeyboardButton(text="Активировать подписку за 10 баллов" if lang == "ru" else "Activate subscription for 10 points", callback_data="ref:activate")]
     ])
     await message.answer(text, reply_markup=kb)
-
 
 @dp.message(Command("activate_ref"))
 async def activate_ref(message: types.Message):

@@ -121,12 +121,12 @@ const AdminEditor = () => {
       </button>
 
       <div className="admin-editor-card">
-        <div className="admin-editor-header">
-          <span className="admin-editor-id">
-            {product.id}
-            {product.is_hot && <span className="admin-editor-icon">🔥</span>}
-            {product.has_video && <span className="admin-editor-icon">🎥</span>}
-          </span>
+        <div className="admin-editor-title">
+          {t("product_number", lang)} {product.id}
+        </div>
+        <div className="admin-editor-description">
+          По всем вопросам писать в поддержку: @your_support_username
+          {/* Здесь ваш общий текст для всех товаров */}
         </div>
         <div className="admin-editor-checkbox-group" style={{ margin: "0 0 18px 18px" }}>
           <label>
@@ -159,7 +159,7 @@ const AdminEditor = () => {
         {/* Фото */}
         {images.length > 0 && (
           <>
-            <div className="admin-editor-photos-title">{t("photos", lang)}</div>
+            <div className="admin-editor-photos-title" style={{ marginTop: 0}}>{t("photos", lang)}</div>
             <div className="admin-editor-photo-grid">
               {gridImages.map((img, i) => {
                 if (showMore && i === maxImages - 1) {
@@ -230,7 +230,7 @@ const AdminEditor = () => {
         {/* Видео */}
         {product.videos && product.videos.length > 0 && (
           <>
-            <div className="admin-editor-video-title">{t("video", lang)}</div>
+            <div className="admin-editor-video-title">{t("videos", lang)}</div>
             <div className="admin-editor-video-list">
               {product.videos.map((video, idx) => {
                 const relativeVideo = video.split('/').slice(-2).join('/');
@@ -277,6 +277,17 @@ const AdminEditor = () => {
             draggable={false}
             onClick={e => e.stopPropagation()}
           />
+          <button
+            className="fullscreen-modal-delete"
+            onClick={e => {
+              e.stopPropagation();
+              handleDeleteImage(images[fullscreenIdx].split('/').slice(-2).join('/'));
+              setFullscreenIdx(null);
+            }}
+            title={t("delete_photo", lang)}
+          >
+            ×
+          </button>
           {fullscreenIdx > 0 && (
             <button
               className="fullscreen-modal-arrow fullscreen-modal-arrow-left"

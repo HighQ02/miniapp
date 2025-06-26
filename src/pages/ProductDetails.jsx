@@ -59,18 +59,34 @@ const ProductDetails = ({ lang: propLang }) => {
   useEffect(() => {
     if (fullscreenIdx === null) return;
     let startX = null;
+    let startY = null;
+    let isMultiTouch = false;
+
     const handleTouchStart = (e) => {
+      if (e.touches.length > 1) {
+        isMultiTouch = true;
+        return;
+      }
+      isMultiTouch = false;
       startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
     };
+
     const handleTouchEnd = (e) => {
-      if (startX === null) return;
+      if (isMultiTouch || startX === null || startY === null) return;
       const endX = e.changedTouches[0].clientX;
-      const diff = endX - startX;
-      if (diff > 50 && fullscreenIdx > 0) setFullscreenIdx(fullscreenIdx - 1);
-      if (diff < -50 && fullscreenIdx < (product?.images?.length || 0) - 1)
-        setFullscreenIdx(fullscreenIdx + 1);
+      const endY = e.changedTouches[0].clientY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+      if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0 && fullscreenIdx > 0) setFullscreenIdx(fullscreenIdx - 1);
+        if (diffX < 0 && fullscreenIdx < (product?.images?.length || 0) - 1)
+          setFullscreenIdx(fullscreenIdx + 1);
+      }
       startX = null;
+      startY = null;
     };
+
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchend", handleTouchEnd);
     return () => {
@@ -96,12 +112,12 @@ const ProductDetails = ({ lang: propLang }) => {
         {t("back", lang)}
       </button>
       <div className="product-details-card">
-        <div className="product-details-header">
-          <span className="product-details-id">
-            {product.id}
-            {product.is_hot && <span className="product-details-icon">🔥</span>}
-            {product.has_video && <span className="product-details-icon">🎥</span>}
-          </span>
+        <div className="product-details-title">
+          {t("product_number", lang)} {product.id}
+        </div>
+        <div className="product-details-description">
+          По всем вопросам писать в поддержку: @your_support_username
+          {/* Здесь ваш общий текст для всех товаров */}
         </div>
         {images.length > 0 && (
           <>
@@ -151,7 +167,7 @@ const ProductDetails = ({ lang: propLang }) => {
         )}
         {product.videos && product.videos.length > 0 && (
           <>
-            <div className="product-details-video-title">{t("video", lang)}</div>
+            <div className="product-details-video-title">{t("videos", lang)}</div>
             <div className="product-details-video-list">
               {product.videos.map((video, index) => (
                 <video

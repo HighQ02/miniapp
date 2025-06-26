@@ -120,23 +120,11 @@ const Products = ({ lang }) => {
               </div>
             ))}
           </div>
-          <div className="products-pagination">
-            <button
-              className="products-pagination-btn tg-arrow"
-              onClick={() => navigate(`?page=${Math.max(1, page - 1)}`)}
-              disabled={page === 1}
-            >
-              <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginRight: 3 }}><path d="M20 8l-8 8 8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-            <span className="products-pagination-info">{page} / {totalPages}</span>
-            <button
-              className="products-pagination-btn tg-arrow"
-              onClick={() => navigate(`?page=${Math.min(totalPages, page + 1)}`)}
-              disabled={page === totalPages}
-            >
-              <svg width="32" height="32" viewBox="0 0 32 32" style={{ marginLeft: 3 }}><path d="M12 8l8 8-8 8" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={p => navigate(`?page=${p}`)}
+          />
         </>
       )}
     </div>
