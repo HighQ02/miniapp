@@ -136,7 +136,8 @@ const AdminEditor = () => {
               onChange={() => setLocalIsHot(v => !v)}
               disabled={loading}
             />{" "}
-            {t("hot", lang)}
+            <i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i>
+            {t("skype", lang)}
           </label>
           <label style={{ marginLeft: 24 }}>
             <input
@@ -145,6 +146,7 @@ const AdminEditor = () => {
               onChange={() => setLocalHasVideo(v => !v)}
               disabled={loading}
             />{" "}
+            <i className="fa-solid fa-video" style={{color: "#786ac8"}}></i>
             {t("video", lang)}
           </label>
           <button
@@ -172,7 +174,7 @@ const AdminEditor = () => {
                       style={{ aspectRatio: "3/4" }}
                     >
                       <img
-                        src={img}
+                        src={img.url || img}
                         alt={t("photo", lang) + ` ${i + 1}`}
                         className="admin-editor-photo-img admin-editor-photo-blur"
                         draggable={false}
@@ -204,7 +206,7 @@ const AdminEditor = () => {
                     style={{ aspectRatio: "3/4" }}
                   >
                     <img
-                      src={img}
+                      src={img.url || img}
                       alt={t("photo", lang) + ` ${i + 1}`}
                       className="admin-editor-photo-img"
                       draggable={false}
@@ -270,7 +272,7 @@ const AdminEditor = () => {
       {fullscreenIdx !== null && (
         <div className="fullscreen-modal" onClick={() => setFullscreenIdx(null)}>
           <img
-            src={images[fullscreenIdx]}
+            src={images[fullscreenIdx]?.url || images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
             onContextMenu={e => e.preventDefault()}
             className="fullscreen-modal-img"

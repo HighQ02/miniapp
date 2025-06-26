@@ -130,6 +130,7 @@ def t(key, lang="ru", **kwargs):
             " 💸 Возврат средств — оформить возврат\n"
             " /broadcast — отправить сообщение всем пользователям\n"
             " /grantaccess user_id срок — выдать подписку\n"
+            " /grantall срок — выдать подписку всем пользователям\n"
             " /remove_sub user_id — забрать подписку\n"
             " /giveadmin user_id — выдать админку\n"
             " /remove_admin user_id — забрать админку\n"
@@ -140,6 +141,7 @@ def t(key, lang="ru", **kwargs):
             " 💸 Refund — process a refund\n"
             " /broadcast — send a message to all users\n"
             " /grantaccess user_id period — grant a subscription\n"
+            " /grantall period — grant subscription to all users\n"
             " /remove_sub user_id — remove a subscription\n"
             " /giveadmin user_id — grant admin rights\n"
             " /remove_admin user_id — remove admin rights\n"
@@ -317,13 +319,13 @@ async def profile(message: types.Message):
     )
 
 @dp.callback_query(lambda c: c.data == "profile:change_lang")
-async def profile_change_lang(callback: types.CallbackQuery):
+async def profile_change_lang(callback: types.CallbackQuery, state: FSMContext):
     lang_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru")],
         [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en")]
     ])
     await callback.message.edit_reply_markup(reply_markup=lang_kb)
-    await callback.answer()
+    await state.set_state(LanguageState.choosing)
 
 
 @dp.message(Command("grantaccess"))
@@ -359,6 +361,37 @@ async def grant_access(message: types.Message):
         await message.answer(t("grant_success", lang=lang, target_id=target_id, value=value, unit=unit))
     except Exception as e:
         await message.answer(t("grant_error", lang=lang, e=e))
+
+
+@dp.message(Command("grantall"))
+async def grant_all(message: types.Message):
+    user = await db.get_user(message.from_user.id)
+    lang = user["language_code"] if user and user.get("language_code") else "ru"
+    if not user or not user.get('is_admin'):
+        await message.answer("⛔ Нет доступа." if lang == "ru" else "⛔ No access.")
+        return
+
+    parts = message.text.split()
+    if len(parts) != 2:
+        await message.answer("Использование: /grantall 3d или /grantall 12h" if lang == "ru" else "Usage: /grantall 3d or /grantall 12h")
+        return
+
+    period = parts[1].lower()
+    if period.endswith('d'):
+        value = int(period[:-1])
+        delta = timedelta(days=value)
+        unit = "дней" if lang == "ru" else "days"
+    elif period.endswith('h'):
+        value = int(period[:-1])
+        delta = timedelta(hours=value)
+        unit = "часов" if lang == "ru" else "hours"
+    else:
+        await message.answer("Укажите срок в формате 3d (дни) или 12h (часы)." if lang == "ru" else "Specify period as 3d (days) or 12h (hours).")
+        return
+
+    # Реализуйте этот метод в вашей базе
+    count = await db.add_time_to_all_subscriptions(delta)
+    await message.answer(f"✅ {value} {unit} добавлено {count} пользователям с подпиской." if lang == "ru" else f"✅ {value} {unit} added to {count} users with subscription.")
 
 
 @dp.message(Command("remove_sub"))
@@ -402,9 +435,9 @@ async def buy_subscription(message: types.Message):
     user = await db.get_user(message.from_user.id)
     lang = user["language_code"] if user and user.get("language_code") else "ru"
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="⭐️ Звезды", callback_data="pay:stars")],
-        [InlineKeyboardButton(text="₿ Крипта", callback_data="pay:crypto")],
-        [InlineKeyboardButton(text="СБП", callback_data="pay:sbp")]
+        [InlineKeyboardButton(text="⭐️ Звезды" if lang == "ru" else "⭐️ Stars", callback_data="pay:stars")],
+        [InlineKeyboardButton(text="₿ Крипта" if lang == "ru" else "₿ Crypto", callback_data="pay:crypto")],
+        [InlineKeyboardButton(text="СБП" if lang == 'ru' else "SBP", callback_data="pay:sbp")]
     ])
     await message.answer("Выберите способ оплаты:" if lang == "ru" else "Choose payment method:", reply_markup=keyboard)
 

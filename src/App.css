@@ -87,43 +87,6 @@ h1, h2, h3 {
   font-size: 1.1rem;
 }
 
-
-.home-container {
-  background-image: url("https://images.unsplash.com/photo-1533158307587-828f0a76ef46?q=80&w=2874&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  position: relative;
-  color: #fff;
-}
-
-.home-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(15, 15, 15, 0.7);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.home-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  font-family: 'Orbitron', sans-serif;
-}
-
-.home-subtitle {
-  font-size: 1rem;
-  max-width: 600px;
-  text-align: center;
-}
-
-
 /* --- Products & AdminPanel Telegram-style filters, toggles, grid, arrows, footer --- */
 
 .products-root, .admin-root {
@@ -274,7 +237,6 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
 }
-.product-card-icon-hot, .admin-card-icon-hot { color: #ff5252; }
 
 .products-loading, .products-empty {
   text-align: center;

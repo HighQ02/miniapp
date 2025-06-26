@@ -78,12 +78,12 @@ const AdminPanel = ({ lang: propLang }) => {
         <ToggleBtn
           checked={filterHot}
           onChange={e => setFilterHot(e.target.checked)}
-          icon={<span role="img" aria-label="hot">🔥</span>}
+          icon={<span role="img" aria-label="skype"><i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i></span>}
         />
         <ToggleBtn
           checked={filterVideo}
           onChange={e => setFilterVideo(e.target.checked)}
-          icon={<span role="img" aria-label="video">🎥</span>}
+          icon={<span role="img" aria-label="video"><i className="fa-solid fa-video" style={{color: "#786ac8"}}></i></span>}
         />
         <Link to="/admin/add" className="admin-add-btn">➕ {t("add_product", lang)}</Link>
       </div>
@@ -97,15 +97,15 @@ const AdminPanel = ({ lang: propLang }) => {
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
             <span className="admin-card-number">{p.id}</span>
             <img
-              src={(p.thumbnail || (p.images && p.images[0]) || "")}
+              src={p.thumbnail?.url || p.thumbnail}
               alt={t("product_alt", lang) + ` ${p.id}`}
               onContextMenu={e => e.preventDefault()}
               draggable={false}
               className="admin-img admin-img-vertical"
             />
             <div className="admin-card-icons">
-              {p.has_video && <span className="admin-card-icon"> 🎥 </span>}
-              {p.is_hot && <span className="admin-card-icon admin-card-icon-hot"> 🔥 </span>}
+              {p.has_video && <span className="admin-card-icon"> <i className="fa-solid fa-video" style={{color: "#786ac8"}}></i> </span>}
+              {p.is_hot && <span className="admin-card-icon"> <i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i> </span>}
             </div>
           </div>
         ))}

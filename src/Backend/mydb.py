@@ -78,6 +78,21 @@ class Database:
                 base + delta, user_id
             )
 
+    async def add_time_to_all_subscriptions(self, delta):
+        async with self.pool.acquire() as conn:
+            result = await conn.execute(
+                """
+                UPDATE users
+                SET subscription = subscription + $1
+                WHERE subscription IS NOT NULL AND subscription > NOW()
+                """,
+                delta
+            )
+            # result = 'UPDATE <count>'
+            count = int(result.split()[-1])
+            return count
+    
+
     async def remove_subscription(self, user_id):
         async with self.pool.acquire() as conn:
             await conn.execute("UPDATE users SET subscription = NULL WHERE user_id = $1", user_id)

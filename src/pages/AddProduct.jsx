@@ -113,11 +113,13 @@ const AddProduct = () => {
         </label>
         <label style={{display:'flex',alignItems:'center',gap:8}}>
           <input type="checkbox" checked={hasVideo} onChange={e => setHasVideo(e.target.checked)} disabled={videos.length > 0} />
+          <i className="fa-solid fa-video" style={{color: "#786ac8"}}></i>
           {t("video", lang)}
         </label>
         <label style={{display:'flex',alignItems:'center',gap:8}}>
           <input type="checkbox" checked={isHot} onChange={e => setIsHot(e.target.checked)} />
-          {t("hot", lang)}
+          <i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i>
+          {t("skype", lang)}
         </label>
         <button type="submit" style={{
           background:'#1976d2', color:'#fff', border:'none', borderRadius:8, padding:'12px 0', fontSize:18, cursor:'pointer'

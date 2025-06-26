@@ -4,7 +4,7 @@ import aiohttp_cors
 from aiohttp import web
 from mydb import Database
 from datetime import datetime
-from storage import upload_file_to_s3, delete_file_from_s3
+from storage import upload_file_to_s3, delete_file_from_s3, get_presigned_url
 import os
 
 db = Database()
@@ -22,7 +22,7 @@ async def check_subscription(request):
         return web.json_response({"error": "user_id must be int"}, status=400)
     try:
         subscription = await db.get_subscription(user_id)
-        free_until = await db.get_free_until(user_id)  # добавьте этот метод в mydb.py
+        free_until = await db.get_free_until(user_id)
     except Exception as e:
         logging.error(f"DB error when getting subscription for user_id={user_id}: {e}")
         return web.json_response({"error": "database error"}, status=500)
@@ -52,10 +52,6 @@ async def check_admin(request):
         return web.json_response({"error": "database error"}, status=500)
 
     return web.json_response({"isAdmin": is_admin})
-
-# S3 config
-BUCKET_NAME = "mini-app-storage"
-S3_BASE_URL = f"https://check-bot.top/{BUCKET_NAME}"
 
 async def handle_add_product(request):
     reader = await request.multipart()
@@ -152,9 +148,15 @@ async def handle_add_product(request):
 
     return web.json_response({'status': 'success', 'product_id': product_id})
 
-def s3_url(object_name):
-    return f"{S3_BASE_URL}/{object_name}"
+# Возвращает временную ссылку для объекта S3
+async def get_presigned_image_url(request):
+    object_name = request.match_info.get('object_name')
+    if not object_name:
+        return web.json_response({'error': 'object_name required'}, status=400)
+    url = get_presigned_url(object_name, expires_in=60)
+    return web.json_response({'url': url})
 
+# Возвращает список товаров с временными ссылками
 async def get_products(request):
     products = await db.get_all_products()
     result = []
@@ -168,14 +170,15 @@ async def get_products(request):
             videos = json.loads(videos)
         result.append({
             'id': product_id,
-            'thumbnail': s3_url(f"{product_id}/{product['thumbnail']}") if product['thumbnail'] else None,
-            'images': [s3_url(f"{product_id}/{path}") for path in images],
-            'videos': [s3_url(f"{product_id}/{path}") for path in videos],
+            'thumbnail': get_presigned_url(f"{product_id}/{product['thumbnail']}") if product['thumbnail'] else None,
+            'images': [get_presigned_url(f"{product_id}/{path}") for path in images],
+            'videos': [get_presigned_url(f"{product_id}/{path}") for path in videos],
             'has_video': product['has_video'],
             'is_hot': product['is_hot']
         })
     return web.json_response(result)
 
+# Возвращает один товар с временными ссылками
 async def get_product_by_id(request):
     product_id = request.match_info.get('id')
     try:
@@ -196,9 +199,9 @@ async def get_product_by_id(request):
 
     result = {
         'id': product_id,
-        'thumbnail': s3_url(f"{product_id}/{product['thumbnail']}") if product['thumbnail'] else None,
-        'images': [s3_url(f"{product_id}/{path}") for path in images],
-        'videos': [s3_url(f"{product_id}/{path}") for path in videos],
+        'thumbnail': get_presigned_url(f"{product_id}/{product['thumbnail']}") if product['thumbnail'] else None,
+        'images': [get_presigned_url(f"{product_id}/{path}") for path in images],
+        'videos': [get_presigned_url(f"{product_id}/{path}") for path in videos],
         'has_video': product['has_video'],
         'is_hot': product['is_hot']
     }
@@ -267,7 +270,6 @@ async def delete_product(request):
     if not product:
         return web.json_response({"error": "Product not found"}, status=404)
 
-    # Удаляем все файлы товара из S3
     images = product["images"]
     if isinstance(images, str):
         images = json.loads(images)
@@ -285,7 +287,6 @@ async def delete_product(request):
     await db.delete_product(product_id)
     return web.json_response({"status": "success"})
 
-# Создаем приложение
 app = web.Application(client_max_size=500*1024**2)
 app.on_startup.append(startup)
 
@@ -294,6 +295,7 @@ app.add_routes([
     web.get('/check-admin', check_admin),
     web.get('/', get_products),
     web.get('/products/{id}', get_product_by_id),
+    web.get('/presigned/{object_name:.*}', get_presigned_image_url),
     web.post('/admin/add-product', handle_add_product),
     web.post('/admin/delete-image', delete_image),
     web.post('/admin/delete-video', delete_video),

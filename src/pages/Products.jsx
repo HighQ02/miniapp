@@ -86,12 +86,12 @@ const Products = ({ lang }) => {
         <ToggleBtn
           checked={filterHot}
           onChange={e => setFilterHot(e.target.checked)}
-          icon={<span role="img" aria-label="hot">🔥</span>}
+          icon={<span role="img" aria-label="skype"><i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i></span>}
         />
         <ToggleBtn
           checked={filterVideo}
           onChange={e => setFilterVideo(e.target.checked)}
-          icon={<span role="img" aria-label="video">🎥</span>}
+          icon={<span role="img" aria-label="video"><i className="fa-solid fa-video" style={{color: "#786ac8"}}></i></span>}
         />
       </div>
       {filtered.length === 0 ? (
@@ -108,15 +108,15 @@ const Products = ({ lang }) => {
               <div key={p.id} className="product-card product-card-vertical" onClick={() => handleCardClick(p.id)}>
                 <span className="product-card-number">{p.id}</span>
                 <img
-                  src={p.thumbnail}
+                  src={p.thumbnail?.url || p.thumbnail}
                   alt={t("product_alt", lang) + ` ${p.id}`}
                   draggable={false}
                   onContextMenu={e => e.preventDefault()}
                   className="product-img product-img-vertical"
                 />
                 <div className="product-card-icons">
-                  {p.has_video && <span className="product-card-icon"> 🎥 </span>}
-                  {p.is_hot && <span className="product-card-icon product-card-icon-hot"> 🔥 </span>}
+                  {p.has_video && <span className="product-card-icon"><i className="fa-solid fa-video" style={{color: "#786ac8"}}></i></span>}
+                  {p.is_hot && <span className="product-card-icon"><i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i></span>}
                 </div>
               </div>
             ))}
