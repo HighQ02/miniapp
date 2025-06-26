@@ -297,7 +297,7 @@ const AdminEditor = () => {
               }}
               aria-label={t("back", lang)}
             >
-              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#fff"/><path d="M15 18l-6-6 6-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#786ac8"/><path d="M15 18l-6-6 6-6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           )}
           {fullscreenIdx < images.length - 1 && (
@@ -309,7 +309,7 @@ const AdminEditor = () => {
               }}
               aria-label={t("forward", lang)}
             >
-              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#fff"/><path d="M9 6l6 6-6 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#786ac8"/><path d="M9 6l6 6-6 6" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           )}
           <div className="fullscreen-modal-info">

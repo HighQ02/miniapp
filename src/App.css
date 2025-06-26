@@ -424,7 +424,7 @@ h1, h2, h3 {
 .product-details-description, .admin-editor-description {
   font-size: 1.08rem;
   color: #e6e6e6;
-  margin: 0 0 18px 18px;
+  margin: 0 18px 18px 18px;
   line-height: 1.6;
   background: #23232d;
   border-radius: 8px;
@@ -670,7 +670,7 @@ h1, h2, h3 {
 }
 
 @media (max-width: 900px) {
-  .product-details-container {
+  .product-details-container, .admin-editor-container {
     padding: 12px 2vw 18px 2vw;
   }
   /* .product-details-image-grid {
@@ -682,7 +682,7 @@ h1, h2, h3 {
   }
 }
 @media (max-width: 600px) {
-  .product-details-container {
+  .product-details-container, .admin-editor-container {
     padding: 6px 0 12px 0;
     border-radius: 0;
     margin: 0;
