@@ -4,7 +4,7 @@ import aiohttp_cors
 from aiohttp import web
 from mydb import Database
 from datetime import datetime
-from storage import upload_file_to_s3, delete_file_from_s3, get_presigned_url
+from storage import upload_file_to_s3, delete_file_from_s3
 import os
 
 db = Database()
@@ -148,15 +148,7 @@ async def handle_add_product(request):
 
     return web.json_response({'status': 'success', 'product_id': product_id})
 
-# Возвращает временную ссылку для объекта S3
-async def get_presigned_image_url(request):
-    object_name = request.match_info.get('object_name')
-    if not object_name:
-        return web.json_response({'error': 'object_name required'}, status=400)
-    url = get_presigned_url(object_name, expires_in=60)
-    return web.json_response({'url': url})
-
-# Возвращает список товаров с временными ссылками
+# Возвращает список товаров (без временных ссылок)
 async def get_products(request):
     products = await db.get_all_products()
     result = []
@@ -170,15 +162,15 @@ async def get_products(request):
             videos = json.loads(videos)
         result.append({
             'id': product_id,
-            'thumbnail': get_presigned_url(f"{product_id}/{product['thumbnail']}") if product['thumbnail'] else None,
-            'images': [get_presigned_url(f"{product_id}/{path}") for path in images],
-            'videos': [get_presigned_url(f"{product_id}/{path}") for path in videos],
+            'thumbnail': f"{product_id}/{product['thumbnail']}" if product['thumbnail'] else None,
+            'images': [f"{product_id}/{path}" for path in images],
+            'videos': [f"{product_id}/{path}" for path in videos],
             'has_video': product['has_video'],
             'is_hot': product['is_hot']
         })
     return web.json_response(result)
 
-# Возвращает один товар с временными ссылками
+# Возвращает один товар (без временных ссылок)
 async def get_product_by_id(request):
     product_id = request.match_info.get('id')
     try:
@@ -199,9 +191,9 @@ async def get_product_by_id(request):
 
     result = {
         'id': product_id,
-        'thumbnail': get_presigned_url(f"{product_id}/{product['thumbnail']}") if product['thumbnail'] else None,
-        'images': [get_presigned_url(f"{product_id}/{path}") for path in images],
-        'videos': [get_presigned_url(f"{product_id}/{path}") for path in videos],
+        'thumbnail': f"{product_id}/{product['thumbnail']}" if product['thumbnail'] else None,
+        'images': [f"{product_id}/{path}" for path in images],
+        'videos': [f"{product_id}/{path}" for path in videos],
         'has_video': product['has_video'],
         'is_hot': product['is_hot']
     }
@@ -295,7 +287,6 @@ app.add_routes([
     web.get('/check-admin', check_admin),
     web.get('/', get_products),
     web.get('/products/{id}', get_product_by_id),
-    web.get('/presigned/{object_name:.*}', get_presigned_image_url),
     web.post('/admin/add-product', handle_add_product),
     web.post('/admin/delete-image', delete_image),
     web.post('/admin/delete-video', delete_video),

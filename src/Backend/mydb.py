@@ -231,3 +231,10 @@ class Database:
         async with self.pool.acquire() as conn:
             rows = await conn.fetch("SELECT user_id FROM users")
             return [row['user_id'] for row in rows]
+        
+    async def set_language(self, user_id: int, lang: str):
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET language_code = $1 WHERE user_id = $2",
+                lang, user_id
+            )
