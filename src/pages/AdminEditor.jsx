@@ -236,19 +236,44 @@ const AdminEditor = () => {
             <div className="admin-editor-video-list">
               {product.videos.map((video, idx) => {
                 const relativeVideo = video.split('/').slice(-2).join('/');
+                const videoRef = useRef(null);
+
+                const handleFullscreen = () => {
+                  if (videoRef.current && videoRef.current.requestFullscreen) {
+                    videoRef.current.requestFullscreen();
+                  }
+                };
+
                 return (
-                  <div key={idx} className="admin-editor-video-item">
+                  <div key={idx} className="admin-editor-video-item" style={{ position: "relative" }}>
                     <video
+                      ref={videoRef}
                       src={video}
                       controls
                       onContextMenu={e => e.preventDefault()}
                       draggable={false}
                       className="admin-editor-video"
-                      style={{ cursor: "pointer" }}
-                      onDoubleClick={e => {
-                        if (e.target.requestFullscreen) e.target.requestFullscreen();
-                      }}
                     />
+                    <button
+                      type="button"
+                      className="admin-editor-video-fullscreen-btn"
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        zIndex: 2,
+                        background: "rgba(0,0,0,0.5)",
+                        border: "none",
+                        borderRadius: "4px",
+                        color: "#fff",
+                        padding: "4px 8px",
+                        cursor: "pointer"
+                      }}
+                      onClick={handleFullscreen}
+                      title={t("fullscreen", lang)}
+                    >
+                      <i className="fa-solid fa-expand"></i>
+                    </button>
                     <button
                       onClick={() => handleDeleteVideo(relativeVideo)}
                       disabled={loading}

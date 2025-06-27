@@ -171,21 +171,50 @@ const ProductDetails = ({ lang: propLang }) => {
           <>
             <div className="product-details-video-title">{t("videos", lang)}</div>
             <div className="product-details-video-list">
-              {product.videos.map((video, index) => (
-                <video
-                  key={index}
-                  src={video}
-                  controls
-                  controlsList="nodownload noremoteplayback"
-                  disablePictureInPicture
-                  onContextMenu={e => e.preventDefault()}
-                  className="product-details-video"
-                  style={{ cursor: "pointer" }}
-                  onDoubleClick={e => {
-                    if (e.target.requestFullscreen) e.target.requestFullscreen();
-                  }}
-                />
-              ))}
+              {product.videos.map((video, index) => {
+                const videoRef = useRef(null);
+
+                const handleFullscreen = () => {
+                  if (videoRef.current && videoRef.current.requestFullscreen) {
+                    videoRef.current.requestFullscreen();
+                  }
+                };
+
+                return (
+                  <>
+                    <video
+                      ref={videoRef}
+                      key={index}
+                      src={video}
+                      controls
+                      controlsList="nodownload noremoteplayback"
+                      disablePictureInPicture
+                      onContextMenu={e => e.preventDefault()}
+                      className="product-details-video"
+                    />
+                    <button
+                      type="button"
+                      className="admin-editor-video-fullscreen-btn"
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        zIndex: 2,
+                        background: "rgba(0,0,0,0.5)",
+                        border: "none",
+                        borderRadius: "4px",
+                        color: "#fff",
+                        padding: "4px 8px",
+                        cursor: "pointer"
+                      }}
+                      onClick={handleFullscreen}
+                      title={t("fullscreen", lang)}
+                    >
+                      <i className="fa-solid fa-expand"></i>
+                    </button>
+                  </>
+                )
+              })}
             </div>
           </>
         )}
