@@ -108,7 +108,7 @@ const Products = ({ lang }) => {
               <div key={p.id} className="product-card product-card-vertical" onClick={() => handleCardClick(p.id)}>
                 <span className="product-card-number">{p.id}</span>
                 <img
-                  src={p.thumbnail}
+                  src={p.thumbnail?.url || p.thumbnail}
                   alt={t("product_alt", lang) + ` ${p.id}`}
                   draggable={false}
                   onContextMenu={e => e.preventDefault()}
