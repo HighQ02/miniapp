@@ -13,7 +13,11 @@ def get_presigned_url(object_name, expires_in=60):
     )
     return s3.generate_presigned_url(
         "get_object",
-        Params={"Bucket": BUCKET_NAME, "Key": object_name},
+        Params={
+            "Bucket": BUCKET_NAME,
+            "Key": object_name,
+            "ResponseContentDisposition": "inline"
+        },
         ExpiresIn=expires_in,
     )
 
