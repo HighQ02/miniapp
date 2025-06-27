@@ -1,3 +1,4 @@
+import mimetypes
 import aioboto3
 import boto3
 from config import BUCKET_NAME, ENDPOINT_URL, ACCESS_KEY, SECRET_KEY
@@ -18,6 +19,9 @@ def get_presigned_url(object_name, expires_in=60):
     )
 
 async def upload_file_to_s3(local_path, object_name):
+    content_type, _ = mimetypes.guess_type(local_path)
+    content_type = content_type or "application/octet-stream"
+
     async with session.client(
         "s3",
         endpoint_url=ENDPOINT_URL,
@@ -25,8 +29,14 @@ async def upload_file_to_s3(local_path, object_name):
         aws_secret_access_key=SECRET_KEY,
     ) as s3:
         with open(local_path, "rb") as f:
-            await s3.upload_fileobj(f, BUCKET_NAME, object_name)
+            await s3.put_object(
+                Bucket=BUCKET_NAME,
+                Key=object_name,
+                Body=f,
+                ContentType=content_type
+            )
     return object_name
+
 
 async def delete_file_from_s3(object_name):
     async with session.client(
