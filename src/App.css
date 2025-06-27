@@ -237,6 +237,9 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
 }
+.product-card-icon-video {
+  font-size: 18px;
+}
 
 .products-loading, .products-empty {
   text-align: center;

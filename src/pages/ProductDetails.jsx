@@ -138,6 +138,7 @@ const ProductDetails = ({ lang: propLang }) => {
                         className="product-details-image product-details-image-blur"
                         draggable={false}
                         onContextMenu={e => e.preventDefault()}
+                        onTouchStart={e => e.preventDefault()}
                       />
                       <span className="product-details-image-more-text">
                         {t("more", lang)}
@@ -158,6 +159,7 @@ const ProductDetails = ({ lang: propLang }) => {
                       className="product-details-image"
                       draggable={false}
                       onContextMenu={e => e.preventDefault()}
+                      onTouchStart={e => e.preventDefault()}
                     />
                   </div>
                 );
@@ -178,6 +180,10 @@ const ProductDetails = ({ lang: propLang }) => {
                   disablePictureInPicture
                   onContextMenu={e => e.preventDefault()}
                   className="product-details-video"
+                  style={{ cursor: "pointer" }}
+                  onDoubleClick={e => {
+                    if (e.target.requestFullscreen) e.target.requestFullscreen();
+                  }}
                 />
               ))}
             </div>
@@ -190,6 +196,7 @@ const ProductDetails = ({ lang: propLang }) => {
             src={images[fullscreenIdx]?.url || images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
             onContextMenu={e => e.preventDefault()}
+            onTouchStart={e => e.preventDefault()}
             className="fullscreen-modal-img"
             draggable={false}
             onClick={e => e.stopPropagation()}

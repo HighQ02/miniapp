@@ -244,6 +244,10 @@ const AdminEditor = () => {
                       onContextMenu={e => e.preventDefault()}
                       draggable={false}
                       className="admin-editor-video"
+                      style={{ cursor: "pointer" }}
+                      onDoubleClick={e => {
+                        if (e.target.requestFullscreen) e.target.requestFullscreen();
+                      }}
                     />
                     <button
                       onClick={() => handleDeleteVideo(relativeVideo)}

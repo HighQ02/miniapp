@@ -112,10 +112,11 @@ const Products = ({ lang }) => {
                   alt={t("product_alt", lang) + ` ${p.id}`}
                   draggable={false}
                   onContextMenu={e => e.preventDefault()}
+                  onTouchStart={e => e.preventDefault()}
                   className="product-img product-img-vertical"
                 />
                 <div className="product-card-icons">
-                  {p.has_video && <span className="product-card-icon"> <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i> </span>}
+                  {p.has_video && <span className="product-card-icon, product-card-icon-video"> <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i> </span>}
                   {p.is_hot && <span className="product-card-icon"> <i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i> </span>}
                 </div>
               </div>

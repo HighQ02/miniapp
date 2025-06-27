@@ -328,6 +328,39 @@ async def profile_change_lang(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(LanguageState.choosing)
 
 
+@dp.callback_query(lambda c: c.data in ["lang:ru", "lang:en"])
+async def set_profile_language(callback: types.CallbackQuery, state: FSMContext):
+    lang = callback.data.split(":")[1]
+    user_id = callback.from_user.id
+    await db.set_language(user_id, lang)
+    await callback.answer("Язык сохранён." if lang == "ru" else "Language saved.", show_alert=True)
+    # Обновить профиль после смены языка
+    user = await db.get_user_profile(user_id)
+    is_admin = ("✅ Да" if user.get("is_admin") else "❌ Нет") if lang == "ru" else ("✅ Yes" if user.get("is_admin") else "❌ No")
+    sub_end = user.get("subscription")
+    # Перевод месяцев для английского
+    if sub_end and sub_end > datetime.utcnow():
+        if lang == "ru":
+            sub_status = f"✅ До {sub_end.strftime('%d %B %Y')}"
+        else:
+            months_en = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ]
+            sub_status = f"✅ until {sub_end.day} {months_en[sub_end.month - 1]} {sub_end.year}"
+    else:
+        sub_status = "❌ Нет подписки" if lang == "ru" else "❌ No subscription"
+    language = "Русский" if lang == "ru" else "English"
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🌐 Сменить язык" if lang == "ru" else "🌐 Change language", callback_data="profile:change_lang")]
+    ])
+    await callback.message.edit_text(
+        t("profile", lang=lang, user_id=user_id, language=language, is_admin=is_admin, sub_status=sub_status),
+        reply_markup=kb
+    )
+    await state.clear()
+
+
 @dp.message(Command("grantaccess"))
 async def grant_access(message: types.Message):
     user = await db.get_user(message.from_user.id)
