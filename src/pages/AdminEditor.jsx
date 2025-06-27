@@ -16,7 +16,7 @@ const AdminEditor = () => {
   const [localHasVideo, setLocalHasVideo] = useState(false);
   const [notif, setNotif] = useState("");
   const [fullscreenIdx, setFullscreenIdx] = useState(null);
-  
+
   const videoRefs = useRef([]);
 
   const fromPage = location.state?.fromPage || 1;
@@ -249,7 +249,7 @@ const AdminEditor = () => {
                 return (
                   <div key={idx} className="admin-editor-video-item" style={{ position: "relative" }}>
                     <video
-                      ref={videoRef}
+                      ref={el => videoRefs.current[idx] = el}
                       src={video}
                       controls
                       onContextMenu={e => e.preventDefault()}
