@@ -1,4 +1,5 @@
 import React from "react";
+import t from '../i18n';
 
 const FAQ = () => {
   return (
