@@ -97,11 +97,12 @@ const AdminPanel = ({ lang: propLang }) => {
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
             <span className="admin-card-number">{p.id}</span>
             <img
-              src={p.thumbnail}
+              src={p.thumbnail?.url || p.thumbnail}
               alt={t("product_alt", lang) + ` ${p.id}`}
               onContextMenu={e => e.preventDefault()}
               draggable={false}
               className="admin-img admin-img-vertical"
+              onError={() => refetchProductOrImage()}
             />
             <div className="admin-card-icons">
               {p.has_video && <span className="admin-card-icon"> <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i> </span>}

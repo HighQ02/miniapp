@@ -133,12 +133,13 @@ const ProductDetails = ({ lang: propLang }) => {
                       style={{ aspectRatio: "3/4" }}
                     >
                       <img
-                        src={img}
+                        src={img.url || img}
                         alt={t("photo", lang) + ` ${i + 1}`}
                         className="product-details-image product-details-image-blur"
                         draggable={false}
                         onContextMenu={e => e.preventDefault()}
                         onTouchStart={e => e.preventDefault()}
+                        onError={() => refetchProductOrImage()}
                       />
                       <span className="product-details-image-more-text">
                         {t("more", lang)}
@@ -154,12 +155,13 @@ const ProductDetails = ({ lang: propLang }) => {
                     style={{ aspectRatio: "3/4" }}
                   >
                     <img
-                      src={img}
+                      src={img.url || img}
                       alt={t("photo", lang) + ` ${i + 1}`}
                       className="product-details-image"
                       draggable={false}
                       onContextMenu={e => e.preventDefault()}
                       onTouchStart={e => e.preventDefault()}
+                      onError={() => refetchProductOrImage()}
                     />
                   </div>
                 );
@@ -193,13 +195,14 @@ const ProductDetails = ({ lang: propLang }) => {
       {fullscreenIdx !== null && (
         <div className="fullscreen-modal" onClick={() => setFullscreenIdx(null)}>
           <img
-            src={images[fullscreenIdx]}
+            src={images[fullscreenIdx]?.url || images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
             onContextMenu={e => e.preventDefault()}
             onTouchStart={e => e.preventDefault()}
             className="fullscreen-modal-img"
             draggable={false}
             onClick={e => e.stopPropagation()}
+            onError={() => refetchProductOrImage()}
           />
           {fullscreenIdx > 0 && (
             <button
