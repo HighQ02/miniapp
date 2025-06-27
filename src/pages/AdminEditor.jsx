@@ -16,6 +16,8 @@ const AdminEditor = () => {
   const [localHasVideo, setLocalHasVideo] = useState(false);
   const [notif, setNotif] = useState("");
   const [fullscreenIdx, setFullscreenIdx] = useState(null);
+  
+  const videoRefs = useRef([]);
 
   const fromPage = location.state?.fromPage || 1;
 
@@ -236,11 +238,11 @@ const AdminEditor = () => {
             <div className="admin-editor-video-list">
               {product.videos.map((video, idx) => {
                 const relativeVideo = video.split('/').slice(-2).join('/');
-                const videoRef = useRef(null);
 
                 const handleFullscreen = () => {
-                  if (videoRef.current && videoRef.current.requestFullscreen) {
-                    videoRef.current.requestFullscreen();
+                  const ref = videoRefs.current[idx];
+                  if (ref && ref.requestFullscreen) {
+                    ref.requestFullscreen();
                   }
                 };
 

@@ -15,6 +15,8 @@ const ProductDetails = ({ lang: propLang }) => {
   const [product, setProduct] = useState(null);
   const [fullscreenIdx, setFullscreenIdx] = useState(null);
 
+  const videoRefs = useRef([]);
+
   const fromPage = location.state?.fromPage || 1;
 
   useEffect(() => {
@@ -172,19 +174,17 @@ const ProductDetails = ({ lang: propLang }) => {
             <div className="product-details-video-title">{t("videos", lang)}</div>
             <div className="product-details-video-list">
               {product.videos.map((video, index) => {
-                const videoRef = useRef(null);
-
                 const handleFullscreen = () => {
-                  if (videoRef.current && videoRef.current.requestFullscreen) {
-                    videoRef.current.requestFullscreen();
+                  const ref = videoRefs.current[index];
+                  if (ref && ref.requestFullscreen) {
+                    ref.requestFullscreen();
                   }
                 };
 
                 return (
-                  <>
+                  <div key={index} style={{ position: "relative" }}>
                     <video
-                      ref={videoRef}
-                      key={index}
+                      ref={el => videoRefs.current[index] = el}
                       src={video}
                       controls
                       controlsList="nodownload noremoteplayback"
@@ -212,7 +212,7 @@ const ProductDetails = ({ lang: propLang }) => {
                     >
                       <i className="fa-solid fa-expand"></i>
                     </button>
-                  </>
+                  </div>
                 )
               })}
             </div>
