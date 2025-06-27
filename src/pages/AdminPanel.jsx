@@ -97,7 +97,7 @@ const AdminPanel = ({ lang: propLang }) => {
           <div key={p.id} className="admin-card" onClick={() => handleCardClick(p.id)}>
             <span className="admin-card-number">{p.id}</span>
             <img
-              src={p.thumbnail?.url || p.thumbnail}
+              src={p.thumbnail}
               alt={t("product_alt", lang) + ` ${p.id}`}
               onContextMenu={e => e.preventDefault()}
               draggable={false}

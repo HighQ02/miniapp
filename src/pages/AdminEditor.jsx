@@ -174,7 +174,7 @@ const AdminEditor = () => {
                       style={{ aspectRatio: "3/4" }}
                     >
                       <img
-                        src={img.url || img}
+                        src={img}
                         alt={t("photo", lang) + ` ${i + 1}`}
                         className="admin-editor-photo-img admin-editor-photo-blur"
                         draggable={false}
@@ -206,7 +206,7 @@ const AdminEditor = () => {
                     style={{ aspectRatio: "3/4" }}
                   >
                     <img
-                      src={img.url || img}
+                      src={img}
                       alt={t("photo", lang) + ` ${i + 1}`}
                       className="admin-editor-photo-img"
                       draggable={false}
@@ -276,7 +276,7 @@ const AdminEditor = () => {
       {fullscreenIdx !== null && (
         <div className="fullscreen-modal" onClick={() => setFullscreenIdx(null)}>
           <img
-            src={images[fullscreenIdx]?.url || images[fullscreenIdx]}
+            src={images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
             onContextMenu={e => e.preventDefault()}
             className="fullscreen-modal-img"

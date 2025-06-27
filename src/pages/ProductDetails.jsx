@@ -133,7 +133,7 @@ const ProductDetails = ({ lang: propLang }) => {
                       style={{ aspectRatio: "3/4" }}
                     >
                       <img
-                        src={img.url || img}
+                        src={img}
                         alt={t("photo", lang) + ` ${i + 1}`}
                         className="product-details-image product-details-image-blur"
                         draggable={false}
@@ -154,7 +154,7 @@ const ProductDetails = ({ lang: propLang }) => {
                     style={{ aspectRatio: "3/4" }}
                   >
                     <img
-                      src={img.url || img}
+                      src={img}
                       alt={t("photo", lang) + ` ${i + 1}`}
                       className="product-details-image"
                       draggable={false}
@@ -193,7 +193,7 @@ const ProductDetails = ({ lang: propLang }) => {
       {fullscreenIdx !== null && (
         <div className="fullscreen-modal" onClick={() => setFullscreenIdx(null)}>
           <img
-            src={images[fullscreenIdx]?.url || images[fullscreenIdx]}
+            src={images[fullscreenIdx]}
             alt={t("photo", lang) + ` ${fullscreenIdx + 1}`}
             onContextMenu={e => e.preventDefault()}
             onTouchStart={e => e.preventDefault()}
