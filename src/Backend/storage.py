@@ -47,14 +47,13 @@ async def upload_file_to_s3(local_path, object_name):
         aws_secret_access_key=SECRET_KEY,
     ) as s3:
         with open(local_path, "rb") as f:
-            await s3.upload_fileobj(
-                f,
-                BUCKET_NAME,
-                object_name,
-                ExtraArgs={
-                    "ContentType": content_type,
-                    "ContentDisposition": "inline"
-                }
+            data = f.read()
+            await s3.put_object(
+                Bucket=BUCKET_NAME,
+                Key=object_name,
+                Body=data,
+                ContentType=content_type,
+                ContentDisposition="inline"
             )
     return object_name
 
