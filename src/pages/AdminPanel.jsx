@@ -83,7 +83,7 @@ const AdminPanel = ({ lang: propLang }) => {
         <ToggleBtn
           checked={filterVideo}
           onChange={e => setFilterVideo(e.target.checked)}
-          icon={<span role="img" aria-label="video"><i className="fa-solid fa-video" style={{color: "#786ac8"}}></i></span>}
+          icon={<span role="img" aria-label="video"><i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i></span>}
         />
         <Link to="/admin/add" className="admin-add-btn">➕ {t("add_product", lang)}</Link>
       </div>
@@ -104,7 +104,7 @@ const AdminPanel = ({ lang: propLang }) => {
               className="admin-img admin-img-vertical"
             />
             <div className="admin-card-icons">
-              {p.has_video && <span className="admin-card-icon"> <i className="fa-solid fa-video" style={{color: "#786ac8"}}></i> </span>}
+              {p.has_video && <span className="admin-card-icon"> <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i> </span>}
               {p.is_hot && <span className="admin-card-icon"> <i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i> </span>}
             </div>
           </div>

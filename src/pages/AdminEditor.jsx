@@ -146,7 +146,7 @@ const AdminEditor = () => {
               onChange={() => setLocalHasVideo(v => !v)}
               disabled={loading}
             />{" "}
-            <i className="fa-solid fa-video" style={{color: "#786ac8"}}></i>
+            <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i>
             {t("video", lang)}
           </label>
           <button

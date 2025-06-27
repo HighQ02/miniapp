@@ -113,7 +113,7 @@ const AddProduct = () => {
         </label>
         <label style={{display:'flex',alignItems:'center',gap:8}}>
           <input type="checkbox" checked={hasVideo} onChange={e => setHasVideo(e.target.checked)} disabled={videos.length > 0} />
-          <i className="fa-solid fa-video" style={{color: "#786ac8"}}></i>
+          <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i>
           {t("video", lang)}
         </label>
         <label style={{display:'flex',alignItems:'center',gap:8}}>

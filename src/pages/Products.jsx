@@ -91,7 +91,7 @@ const Products = ({ lang }) => {
         <ToggleBtn
           checked={filterVideo}
           onChange={e => setFilterVideo(e.target.checked)}
-          icon={<span role="img" aria-label="video"><i className="fa-solid fa-video" style={{color: "#786ac8"}}></i></span>}
+          icon={<span role="img" aria-label="video"><i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i></span>}
         />
       </div>
       {filtered.length === 0 ? (
@@ -115,8 +115,8 @@ const Products = ({ lang }) => {
                   className="product-img product-img-vertical"
                 />
                 <div className="product-card-icons">
-                  {p.has_video && <span className="product-card-icon"><i className="fa-solid fa-video" style={{color: "#786ac8"}}></i></span>}
-                  {p.is_hot && <span className="product-card-icon"><i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i></span>}
+                  {p.has_video && <span className="product-card-icon"> <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i> </span>}
+                  {p.is_hot && <span className="product-card-icon"> <i className="fa-brands fa-skype" style={{color: "#00aff0"}}></i> </span>}
                 </div>
               </div>
             ))}
