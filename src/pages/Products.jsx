@@ -113,7 +113,6 @@ const Products = ({ lang }) => {
                   draggable={false}
                   onContextMenu={e => e.preventDefault()}
                   onTouchStart={e => e.preventDefault()}
-                  onError={() => refetchProductOrImage()}
                   className="product-img product-img-vertical"
                 />
                 <div className="product-card-icons">

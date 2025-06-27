@@ -179,7 +179,6 @@ const AdminEditor = () => {
                         className="admin-editor-photo-img admin-editor-photo-blur"
                         draggable={false}
                         onContextMenu={e => e.preventDefault()}
-                        onError={() => refetchProductOrImage()}
                       />
                       <span className="admin-editor-photo-more-text">
                         {t("more", lang)}
@@ -212,7 +211,6 @@ const AdminEditor = () => {
                       className="admin-editor-photo-img"
                       draggable={false}
                       onContextMenu={e => e.preventDefault()}
-                      onError={() => refetchProductOrImage()}
                     />
                     <button
                       onClick={e => {
@@ -284,7 +282,6 @@ const AdminEditor = () => {
             className="fullscreen-modal-img"
             draggable={false}
             onClick={e => e.stopPropagation()}
-            onError={() => refetchProductOrImage()}
           />
           <button
             className="fullscreen-modal-delete"

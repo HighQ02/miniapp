@@ -102,7 +102,6 @@ const AdminPanel = ({ lang: propLang }) => {
               onContextMenu={e => e.preventDefault()}
               draggable={false}
               className="admin-img admin-img-vertical"
-              onError={() => refetchProductOrImage()}
             />
             <div className="admin-card-icons">
               {p.has_video && <span className="admin-card-icon"> <i className="fa-solid fa-video" style={{color: "#b6aaff"}}></i> </span>}

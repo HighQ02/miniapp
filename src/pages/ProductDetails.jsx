@@ -139,7 +139,6 @@ const ProductDetails = ({ lang: propLang }) => {
                         draggable={false}
                         onContextMenu={e => e.preventDefault()}
                         onTouchStart={e => e.preventDefault()}
-                        onError={() => refetchProductOrImage()}
                       />
                       <span className="product-details-image-more-text">
                         {t("more", lang)}
@@ -161,7 +160,6 @@ const ProductDetails = ({ lang: propLang }) => {
                       draggable={false}
                       onContextMenu={e => e.preventDefault()}
                       onTouchStart={e => e.preventDefault()}
-                      onError={() => refetchProductOrImage()}
                     />
                   </div>
                 );
@@ -202,7 +200,6 @@ const ProductDetails = ({ lang: propLang }) => {
             className="fullscreen-modal-img"
             draggable={false}
             onClick={e => e.stopPropagation()}
-            onError={() => refetchProductOrImage()}
           />
           {fullscreenIdx > 0 && (
             <button
